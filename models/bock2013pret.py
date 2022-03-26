@@ -4,10 +4,12 @@ import madmom
 import pickle
 
 def get_model():
+
     with open('datasets/madmom_models-master/onsets/2013/onsets_cnn.pkl', 'rb') as f:
         u = pickle._Unpickler(f)
         u.encoding = 'latin1'
         p = u.load()
+
 
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(80, 15, 3)),
@@ -57,7 +59,6 @@ def get_model():
         p.layers[7].weights, 
         p.layers[7].bias
     ])
-
     return model, p.layers[0]
 
 if __name__=="__main__":
