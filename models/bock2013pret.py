@@ -1,7 +1,18 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import madmom
 import pickle
+
+# Function for debugging (why different weigths after loading to TF model?)
+def compare_w(w1,w2):
+    
+    print(w1[0,2,0,1]-w2[0,2,0,1])
+    #for dim1 in range(4):
+    #    for dim2 in range(3):
+    #        if dim1 != dim2:
+    #            t1 = np.take(np.take(w1, indices=[0], axis=dim1), indices=[0], axis=dim2)
+    #            t2 = np.take(np.take(w2, indices=[0], axis=dim1), indices=[0], axis=dim2)          
 
 def get_model():
 
@@ -39,12 +50,10 @@ def get_model():
         tf.keras.layers.Dense(1, activation = 'sigmoid', 
         )
     ])
-
     model.layers[1].set_weights([
         np.transpose(p.layers[1].weights, [2,3,0,1]), 
         p.layers[1].bias
     ])
-
     model.layers[3].set_weights([
         np.transpose(p.layers[3].weights, [2,3,0,1]), 
         p.layers[3].bias
@@ -59,12 +68,20 @@ def get_model():
         p.layers[7].weights, 
         p.layers[7].bias
     ])
+    
+    w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
+    w2 = model.layers[1].get_weights()[0]
+
+    compare_w(w1,w2)
+    
     return model, p.layers[0]
 
 if __name__=="__main__":
     (model, norm_layer)=get_model()
+    '''
     with open("models/bock2013pret-tf.pkl", 'wb') as handle:
         pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     np.save("models/bock2013pret_inv_std", norm_layer.inv_std)
     np.save("models/bock2013pret_mean", norm_layer.mean)
+    '''
