@@ -6,8 +6,9 @@ import pickle
 
 # Function for debugging (why different weigths after loading to TF model?)
 def compare_w(w1,w2):
-    
-    print(w1[0,2,0,1]-w2[0,2,0,1])
+    diff = np.abs(w1-w2).reshape((-1))
+    print(w1.sum())
+    print(w2.sum())
     #for dim1 in range(4):
     #    for dim2 in range(3):
     #        if dim1 != dim2:
@@ -15,6 +16,8 @@ def compare_w(w1,w2):
     #            t2 = np.take(np.take(w2, indices=[0], axis=dim1), indices=[0], axis=dim2)          
 
 def get_model():
+
+    tf.keras.backend.set_floatx("float64")
 
     with open('datasets/madmom_models-master/onsets/2013/onsets_cnn.pkl', 'rb') as f:
         u = pickle._Unpickler(f)
@@ -50,8 +53,9 @@ def get_model():
         tf.keras.layers.Dense(1, activation = 'sigmoid', 
         )
     ])
+
     model.layers[1].set_weights([
-        np.transpose(p.layers[1].weights, [2,3,0,1]), 
+        np.transpose(p.layers[1].weights, [2,3,0,1]).astype("float32"), 
         p.layers[1].bias
     ])
     model.layers[3].set_weights([
@@ -69,10 +73,9 @@ def get_model():
         p.layers[7].bias
     ])
     
-    w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
-    w2 = model.layers[1].get_weights()[0]
-
-    compare_w(w1,w2)
+    #w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
+    #w2 = model.layers[1].get_weights()[0]
+    #compare_w(w1,w2)
     
     return model, p.layers[0]
 
