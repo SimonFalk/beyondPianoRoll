@@ -3,6 +3,10 @@ import numpy as np
 from numpy import genfromtxt
 import matplotlib.pyplot as plt
 
+def f_score(evaluation_result):
+	CD,FN,FP,doubles,merged = evaluation_result
+	return 2*CD/(2*CD+FP+FN)
+
 def evaluate(true, pred, tol_sec):
 
 	pred_counted = np.zeros(len(pred))
