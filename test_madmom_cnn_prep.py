@@ -15,29 +15,26 @@ def _cnn_onset_processor_pad(data):
     pad_stop = np.repeat(data[-1:], 7, axis=0)
     return np.concatenate((pad_start, data, pad_stop))
 
-sig_proc = SignalProcessor(num_channels=1, sample_rate=44100)
+EPSILON = np.spacing(1)
 
-multi_proc = ParallelProcessor([])
+sig = SignalProcessor(num_channels=1, sample_rate=44100)
+# process the multi-resolution spec in parallel
+multi = ParallelProcessor([])
 for frame_size in [2048, 1024, 4096]:
-    frames_proc = FramedSignalProcessor(frame_size=4096, fps=100)
-
-    stft_proc = ShortTimeFourierTransformProcessor()
-
-    filt_proc = FilteredSpectrogramProcessor(
-                    filterbank=MelFilterbank, num_bands=80, fmin=27.5, fmax=16000,
-                    norm_filters=True, unique_filters=False)
-
-    spec_proc = LogarithmicSpectrogramProcessor(log=np.log, add=np.spacing(1))
-
-    multi_proc.append(SequentialProcessor((frames_proc, stft_proc, filt_proc, spec_proc)))
-
+    frames = FramedSignalProcessor(frame_size=frame_size, fps=100)
+    stft = ShortTimeFourierTransformProcessor()  # caching FFT window
+    filt = FilteredSpectrogramProcessor(
+        filterbank=MelFilterbank, num_bands=80, fmin=27.5, fmax=16000,
+        norm_filters=True, unique_filters=False)
+    spec = LogarithmicSpectrogramProcessor(log=np.log, add=EPSILON)
+    # process each frame size with spec and diff sequentially
+    multi.append(SequentialProcessor((frames, stft, filt, spec)))
+# stack the features (in depth) and pad at beginning and end
 stack = np.dstack
-
-# Pad removed
-
-pre_processor = SequentialProcessor((sig_proc, multi_proc, stack))
-
+pad = _cnn_onset_processor_pad
+# pre-processes everything sequentially
+pre_processor = SequentialProcessor((sig, multi, stack, pad))
 prep = pre_processor("datasets/OnsetLabeledInstr2013/development/Violin/42954_FreqMan_hoochie_violin_pt1.wav")
 
 
-np.save("results/processor_test/prep", prep)
+np.save("results/processor_test/prep_alt", prep)
