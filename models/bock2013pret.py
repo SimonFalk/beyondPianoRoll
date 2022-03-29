@@ -73,8 +73,9 @@ def get_model():
         p.layers[7].bias
     ])
     
-    #w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
-    #w2 = model.layers[1].get_weights()[0]
+    w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
+    w2 = model.layers[1].get_weights()[0]
+    np.testing.assert_allclose(w1, w2, rtol=0, atol=1e-16)
     #compare_w(w1,w2)
     
     return model, p.layers[0]
