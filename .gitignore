@@ -1,6 +1,7 @@
 # Folders
 datasets/
 madmom/
+models/*.pkl
 
 #VS CODE
 .vscode/
