@@ -1,0 +1,30 @@
+63an_start_220306.wav		A
+63an_start_220319.wav
+6xtpsg_220306.wav			A
+6xtpsg_220319.wav			A
+6xtscale_220306.wav
+6xtscale_220319.wav
+hacketi_220319_start.wav
+janissa_IR1.wav			
+janissa_IR2.wav				A
+melodyvib_220319.wav		A
+slurtest01_FK1.wav			A
+slurtest01_IR1.wav			A
+slurtest01_IR2.wav
+slurtest02_IR1.wav			A
+slurtest02_IR2.wav
+slurtest03_FK1.wav			A
+slurtest03_IR1.wav			A
+slurtest03_IR2.wav
+slurtest04_FK1.wav			A
+slurtest04_IR1.wav
+slurtest04_IR2.wav			A
+slurtest05_FK.wav
+slurtest05_IR1.wav
+slurtest05_IR2.wav
+slurtest08_FK1.wav			A
+slurtest09_FK1.wav
+slurtest09_IR1.wav
+slurtest09_IR2.wav			A
+stormhatten_IR1.wav			A
+stormhatten_IR2.wav			A

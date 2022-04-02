@@ -1,5 +1,9 @@
 # Folders
-datasets/
+datasets/articulation
+datasets/beatboxset1
+datasets/initslurtest_vn_old
+datasets/madmom_models-master
+datasets/OnsetLabeledInstr2013
 madmom/
 models/*.pkl
 results/
