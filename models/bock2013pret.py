@@ -24,7 +24,7 @@ def get_model(finetune=False):
 
     tf.keras.backend.set_floatx("float64")
 
-    with open('datasets/madmom_models-master/onsets/2013/onsets_cnn.pkl', 'rb') as f:
+    with open('models/onsets_cnn.pickle', 'rb') as f:
         u = pickle._Unpickler(f)
         u.encoding = 'latin1'
         p = u.load()
