@@ -9,7 +9,7 @@ from madmom.audio.spectrogram import (FilteredSpectrogramProcessor,
 from madmom.processors import (BufferProcessor, OnlineProcessor, ParallelProcessor,
                           SequentialProcessor, )
 
-def cnn_preprocessor():
+def cnn_preprocessor(file_input=True):
     def _cnn_onset_processor_pad(data):
         """Pad the data by repeating the first and last frame 7 times."""
         pad_start = np.repeat(data[:1], 7, axis=0)
@@ -17,7 +17,6 @@ def cnn_preprocessor():
         return np.concatenate((pad_start, data, pad_stop))
 
     EPSILON = np.spacing(1)
-
     sig = SignalProcessor(num_channels=1, sample_rate=44100)
     # process the multi-resolution spec in parallel
     multi = ParallelProcessor([])
@@ -34,5 +33,8 @@ def cnn_preprocessor():
     stack = np.dstack
     pad = _cnn_onset_processor_pad
     # pre-processes everything sequentially
-    pre_processor = SequentialProcessor((sig, multi, stack, pad))
+    if file_input:
+        pre_processor = SequentialProcessor((sig, multi, stack, pad))
+    else:
+        pre_processor = SequentialProcessor((sig, multi, stack, pad))
     return pre_processor
