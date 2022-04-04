@@ -20,7 +20,7 @@ def compare_w(w1,w2):
     #            t1 = np.take(np.take(w1, indices=[0], axis=dim1), indices=[0], axis=dim2)
     #            t2 = np.take(np.take(w2, indices=[0], axis=dim1), indices=[0], axis=dim2)          
 
-def get_model(finetune=False):
+def get_model(finetune=False, relu=False):
 
     tf.keras.backend.set_floatx("float64")
 
@@ -33,11 +33,13 @@ def get_model(finetune=False):
         return (K.tanh(x*0.5) + 1) * 0.5
     get_custom_objects().update({'custom_activation': Activation(custom_activation)})
 
+    conv_activation = "relu" if relu else "tanh" 
+
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(80, 15, 3)),
         tf.keras.layers.Permute((2,1,3)),
         tf.keras.layers.Conv2D(
-            activation = 'tanh',
+            activation = conv_activation,
             filters = 10,
             kernel_size = (7,3),
             strides = 1,
@@ -48,7 +50,7 @@ def get_model(finetune=False):
                 strides=(1,3)
         ),
         tf.keras.layers.Conv2D(
-            activation = 'tanh',
+            activation = conv_activation,
             filters = 20,
             kernel_size = (3,3),
             strides = 1,
