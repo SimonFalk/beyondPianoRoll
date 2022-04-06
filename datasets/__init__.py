@@ -23,6 +23,25 @@ PATHS = {
             'datasets/OnsetLabeledInstr2013/development/Oud/rast_taksim1', 
             'datasets/OnsetLabeledInstr2013/development/Oud/ud_taksimleri_-_02_-_huezzam_taksim_pt1', 
             'datasets/OnsetLabeledInstr2013/development/Oud/8'
+        ],
+        'slurtest_add_1' : [
+            'stormhatten_IR2',
+            'slurtest02_IR1',
+            'slurtest01_IR2',
+            'slurtest03_FK1',
+            '6xtpsg_220319',
+            'slurtest04_IR2',
+            'melodyvib_220319',
+            'slurtest09_IR2',
+            'janissa_IR2',
+            '6xtpsg_220306',
+            'slurtest01_FK1',
+            'slurtest04_FK1',
+            'slurtest01_IR1',
+            '63an_start_220306',
+            'slurtest08_FK1',
+            'slurtest03_IR1',
+            'stormhatten_IR1',
         ]
 }
 
@@ -30,19 +49,23 @@ PATHS = {
 class Dataset:
     __DATASET_AUDIO_PATHS = {
         "holzap_dev" : "datasets/OnsetLabeledInstr2013/development/",
-        "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_wav/"
+        "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_wav/",
+        "slurtest_add_1" : "datasets/slurtest_add/slurtest_add_audio/",
     }
     __DATASET_ANNOTATION_PATHS = {
         "holzap_dev" : "datasets/OnsetLabeledInstr2013/development/",
-        "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_annotations/" 
+        "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_annotations/",
+        "slurtest_add_1" : "datasets/slurtest_add/slurtest_add_annotations/",
     }
     __AUDIO_FORMATS = {
         "holzap_dev" : "wav",
         "initslurtest" : "wav",
+        "slurtest_add_1" : "wav",
     }
     __ANNOTATION_FORMATS = {
         "holzap_dev": "onsets",
         "initslurtest" : "txt",
+        "slurtest_add_1" : "txt"
     }
 
     def __init__(self, dataset_name, audio_format="wav", annotation_format="csv"):
@@ -50,7 +73,7 @@ class Dataset:
         self.audio_base = self.__DATASET_AUDIO_PATHS[dataset_name]
         self.annotation_base = self.__DATASET_ANNOTATION_PATHS[dataset_name]
 
-        self.audio_paths, self.annotation_paths = self.mine(audio_format, annotation_format)
+        #self.audio_paths, self.annotation_paths = self.mine(audio_format, annotation_format)
 
 
     def walk(self, base_path, format):
@@ -95,6 +118,10 @@ class Dataset:
         elif self.dataset_name == "initslurtest":
             base = "datasets/initslurtest_vn/initslurtest_vn_wav/"
             return [base + "slurtest{:02d}.wav".format(i) for i in range(1,20)]
+
+        elif self.dataset_name == 'slurtest_add_1':
+            base = "datasets/slurtest_add/slurtest_add_audio/"
+            return [base + file + ".wav" for file in PATHS["slurtest_add_1"]]
         return self.audio_paths
     
     def get_annotation_paths(self):
@@ -103,4 +130,7 @@ class Dataset:
         elif self.dataset_name == "initslurtest":
             base = "datasets/initslurtest_vn/initslurtest_vn_annotations/"
             return [base + "{:02d}.txt".format(i) for i in range(1,20)]
+        elif self.dataset_name == 'slurtest_add_1':
+            base = "datasets/slurtest_add/slurtest_add_annotations/"
+            return [base + file + ".txt" for file in PATHS["slurtest_add_1"]]
         return self.annotation_paths
