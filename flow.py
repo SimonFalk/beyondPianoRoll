@@ -17,7 +17,6 @@ from modules.madmom_cnn_prep import cnn_preprocessor
 from datasets import Dataset
 from analyze_detection import evaluate, f_score
 from models.bock2013pret import get_model
-from modules.metrics import f1
 
 def fxn():
     warnings.warn("deprecated", DeprecationWarning)
@@ -117,8 +116,8 @@ training_mode = 0
 standard = False
 save = True
 training_name = "added-sample-nostandard"
-date_today = "220406"
-n_epochs = 100
+date_today = "220407"
+n_epochs = 50
 steps_per_epoch = 100
 val_steps_per_epoch = 30
 bs = 256
