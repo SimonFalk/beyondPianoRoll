@@ -1,0 +1,45 @@
+Sums
+
+Spectrograms: -5664605.0
+
+Padded spectrograms: -394389.75
+
+Inv std: 43.76376742525747
+Mean: -670.4335657249553
+
+Normalized spectrograms: 900735.2980233161
+
+Permutation layer: 1079330.9
+
+First Conv2d layer: -3977391.2
+
+Second Conv2d layer: -1285985.8
+
+Flatten layer: 32346.545
+
+First dense layer: 76209.18
+
+Second dense layer: 20.028666
+
+
+Threshold: 0.001    Precision: 95.7    Recall: 55.5    F-measure: 70.2
+Threshold: 1.0    	Precision: 95.7    Recall: 60.4    F-measure: 74.1
+Threshold: 2    Precision: 95.7    Recall: 67.5    F-measure: 79.2
+Threshold: 3    Precision: 95.6    Recall: 72.3    F-measure: 82.3
+Threshold: 4    Precision: 95.6    Recall: 77.1    F-measure: 85.4
+Threshold: 5    Precision: 95.6    Recall: 83.0    F-measure: 88.8
+Threshold: 6    Precision: 95.1    Recall: 86.8    F-measure: 90.8
+Threshold: 7    Precision: 95.0    Recall: 91.0    F-measure: 92.9
+Threshold: 8    Precision: 92.5    Recall: 95.6    F-measure: 94.0
+Threshold: 9    Precision: 80.4    Recall: 98.7    F-measure: 88.6
+
+Threshold: 0    Precision: 74.6    Recall: 34.3    F-measure: 47.0
+Threshold: 1    Precision: 74.7    Recall: 36.5    F-measure: 49.0
+Threshold: 2    Precision: 74.7    Recall: 40.5    F-measure: 52.6
+Threshold: 3    Precision: 73.7    Recall: 43.4    F-measure: 54.6
+Threshold: 4    Precision: 68.8    Recall: 45.6    F-measure: 54.8
+Threshold: 5    Precision: 58.3    Recall: 50.8    F-measure: 54.3
+Threshold: 6    Precision: 39.2    Recall: 54.0    F-measure: 45.4
+Threshold: 7    Precision: 14.7    Recall: 55.1    F-measure: 23.2
+Threshold: 8    Precision: 1.3    Recall: 100.0    F-measure: 2.6
+Threshold: 9    Precision: 0.0    Recall: nan    F-measure: 0.0
