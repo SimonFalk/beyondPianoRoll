@@ -52,26 +52,44 @@ onset_vectors = [get_label_vector(sched, len(audio)/sr, FPS)
     for (sched, audio, sr) in zip(onset_schedules, audios, sample_rates)
 ]
 
+mm_proc_frames = [preprocessor(fname) for fname in audio_fnames]
+mm_frames_normalized = [cnn_normalize(frame_set) for frame_set in mm_proc_frames]
+
 def data_generator(
     batch_size,
     steps_per_epoch,
     epochs,
-    idx,
-    mode = 0 # 0 for training, 1 for test
+    idx, 
+    sampling=True,
+    mode=None
 ):
     
-    for _ in range(steps_per_epoch * epochs):
-
+    #for _ in range(steps_per_epoch * epochs):
+    if not sampling:
+        ep = 0
+        file_p = 0
+        frame_p = 0
+    
+    while True:
         # Select indices for training or test
-        file_i = np.random.choice(idx)
+        if sampling:
+            file_i = np.random.choice(idx)
+        else:
+            file_i = idx[file_p]
+        
         #print("Selected file index: ", file_i)
         fname = audio_fnames[file_i]
         
-        # Compute frames
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            fxn()
-            frames_normalized = cnn_normalize(preprocessor(fname))
+        if mode=="use_prep_frames":
+            frames_normalized = mm_frames_normalized[file_i]
+            
+        else:
+            # Compute frames
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                fxn()
+                frames_normalized = cnn_normalize(preprocessor(fname))
+        #print("Frame size: ", frames_normalized.shape[0])
 
         # Retrieve onsets 
         onsets = onset_vectors[file_i]
@@ -80,27 +98,51 @@ def data_generator(
 
         # Sample a set of indices (defined from audio start,
         # that is CONTEXT values counted from x array start)
-        focus_idx = np.random.choice(
-            np.arange(frames_normalized.shape[0]-2*CONTEXT-1), 
-            size=batch_size
-        )
-        #print("Sampled focus idx between ", 0, " and ", frames_normalized.shape[0]-2*CONTEXT-1)
+        if sampling:
+            focus_idx = np.random.choice(
+                np.arange(frames_normalized.shape[0]-2*CONTEXT-1), 
+                size=batch_size
+            )
+            #print("Sampled focus idx between ", 0, " and ", frames_normalized.shape[0]-2*CONTEXT-1)
+        else:
+            #print("Focus idx from ", frame_p, " to ", frame_p+batch_size)
+            focus_idx = np.arange(frame_p, frame_p+batch_size)
+        
 
         # Segmentation
         x = [frames_normalized[focus:focus+2*CONTEXT+1,:,:] for focus in focus_idx]
         x = np.transpose(np.stack(x, 0), [0,2,1,3])
         #print("Segmented x has shape ", x.shape)
+        if x.shape[0] != batch_size:
+            print("Delivering less than batch-size")
 
         # Labels
-        
         y = onsets[focus_idx]
         yield (x, y)
+
+        if not sampling:
+            if frame_p + 2*batch_size >= frames_normalized.shape[0]-2*CONTEXT-1:
+                if file_p == len(idx) - 1:
+                    ep += 1
+                    print("Generator reached end of epoch. Resetting...")
+                    file_p = 0
+                    frame_p = 0
+                else:
+                    file_p += 1
+                    frame_p = 0
+            else:
+                frame_p += batch_size
 
 # K-Fold:
 random_seed = 119
 n_splits =  5
 kf = KFold(n_splits=n_splits, shuffle=True, random_state=True)
 kf_gen = list(kf.split(np.arange(len(audio_fnames))))
+
+def compute_steps(idx, bs):
+    song_sizes = np.array([len(f) for f in mm_frames_normalized])[idx]-2*CONTEXT-1
+    steps_per_song = np.floor_divide(song_sizes, bs)
+    return np.sum(steps_per_song)
 
 
 loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=False)
@@ -112,15 +154,18 @@ metrics = [
     tf.keras.metrics.FalseNegatives(name='fn', thresholds=0.5),
 ]
 
-training_mode = 0
+continue_run = False
+training_mode = "all" # REMEMBER TO CHANGE
 standard = False
-save = True
-training_name = "added-sample-nostandard"
-date_today = "220407"
-n_epochs = 50
-steps_per_epoch = 100
-val_steps_per_epoch = 30
+save = True # REMEMBER TO CHANGE
+training_name = "added-sample-gen-nostandard" # REMEMBER TO CHANGE
+date_today = "220409" # TODO - automatically
+n_epochs = 50 # REMEMBER TO CHANGE
 bs = 256
+steps_per_epoch = 400
+val_steps_per_epoch = 30
+nogen = False 
+sampling = True
 
 if standard:
     with open('results/cnn-training-220331/mean_by_fold.pickle', 'rb') as file_pi:
@@ -142,51 +187,77 @@ while fold < n_splits:
     print("Test indices: ", test_idx)
 
     # Data
+    if nogen:
+        X_train, X_test = [
+            np.concatenate([X[i] for i in idx]) 
+            for idx in (train_idx, test_idx)
+        ]
+        y_train, y_test = [
+            np.concatenate([onset_vectors[i] for i in idx]) 
+            for idx in (train_idx, test_idx)
+        ]
+
+    #train_onset_ratio = y_train.sum()/len(y_train)
 
     # Normalize with training set statistics
+    #if standard:
+    #    X_train = (X_train - means[fold])/stds[fold]
+    #    X_test = (X_test - means[fold])/stds[fold]
 
     # Model
-    tf.keras.backend.clear_session()
+    if not continue_run:
+        tf.keras.backend.clear_session()
     (model, norm_layer)=get_model(finetune=False)
+    
     model.compile(optimizer=optimizer,
                 loss=loss_fn,
                 metrics=metrics)
+                
+    if not sampling:
+        steps_per_epoch = compute_steps(train_idx, bs)
+        val_steps_per_epoch = compute_steps(test_idx, bs)
 
-    # Training
-    history = model.fit(
+    if nogen:
+        x = X_train
+        y = y_train
+        steps_per_epoch = None
+        validation_data = (X_test, y_test)
+    else:
         x = data_generator(
             batch_size=bs, 
             steps_per_epoch=steps_per_epoch, 
             epochs=n_epochs,
-            idx=train_idx
-        ),
-        batch_size      = bs,
+            idx=train_idx,
+            sampling=sampling,
+            mode='use_prep_frames'
+        )
+        y = None
+        validation_data = data_generator(
+            batch_size=bs, 
+            steps_per_epoch=val_steps_per_epoch, 
+            epochs=n_epochs,
+            idx=test_idx,
+            sampling=sampling,
+            mode='use_prep_frames'
+        )
+
+
+    # Training
+    history = model.fit(
+        x = x, y = y, 
         steps_per_epoch = steps_per_epoch,
         epochs          = n_epochs,
-        
         # Validation data
-        validation_data = tf.data.Dataset.from_generator(
-            lambda: data_generator(
-                batch_size=bs, 
-                steps_per_epoch=val_steps_per_epoch, 
-                epochs=1,
-                idx=test_idx
-            ),
-            output_signature = (
-                tf.TensorSpec(shape = (bs, 80 , 15, 3), dtype = tf.float64),
-                tf.TensorSpec(shape = (bs),     dtype = tf.float64),
-            )
-        ),
-        validation_batch_size = bs,
-        validation_steps      = val_steps_per_epoch,
+        validation_data = validation_data,
+        validation_steps  = val_steps_per_epoch,
         class_weight = {0: 1., 1: 1/0.035},
         verbose=1
     )
 
     # Saving
     if save:
-        model.save('results/cnn-training-{}/{}_fold_{}_model'.format(date_today, fold, training_name))
-        with open('results/cnn-training-{}/{}_fold_{}_history.pickle'.format(date_today, fold, training_name), 'wb') as file_pi:
+        model.save('results/cnn-training-{}/fold_{}_{}_model'.format(date_today, fold, training_name))
+        with open('results/cnn-training-{}/fold_{}_{}_history.pickle'.format(date_today, fold, training_name), 'wb') as file_pi:
             pickle.dump(history.history, file_pi)
     
     

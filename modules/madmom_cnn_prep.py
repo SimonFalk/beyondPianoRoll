@@ -9,6 +9,12 @@ from madmom.audio.spectrogram import (FilteredSpectrogramProcessor,
 from madmom.processors import (BufferProcessor, OnlineProcessor, ParallelProcessor,
                           SequentialProcessor, )
 
+def cnn_normalize(frames):
+    inv_std = np.load("models/bock2013pret_inv_std.npy")
+    mean = np.load("models/bock2013pret_mean.npy")
+    frames_normalized = (frames - np.reshape(mean, (1,80,3)))*np.reshape(inv_std, (1,80,3))
+    return frames_normalized
+
 def cnn_preprocessor(file_input=True):
     def _cnn_onset_processor_pad(data):
         """Pad the data by repeating the first and last frame 7 times."""
