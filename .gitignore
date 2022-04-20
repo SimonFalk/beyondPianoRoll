@@ -6,9 +6,7 @@ datasets/madmom_models-master
 datasets/OnsetLabeledInstr2013
 madmom/
 models/*.pkl
-results/cnn-training*
-results/processor_test
-results/tensorboard
+results/
 
 
 #VS CODE
