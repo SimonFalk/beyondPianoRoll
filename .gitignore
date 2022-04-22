@@ -7,6 +7,7 @@ datasets/OnsetLabeledInstr2013
 madmom/
 models/*.pkl
 results/
+hfc-files/*.xlsx
 
 
 #VS CODE
