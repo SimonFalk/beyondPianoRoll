@@ -42,8 +42,24 @@ PATHS = {
             'slurtest08_FK1',
             'slurtest03_IR1',
             'stormhatten_IR1',
+        ],
+        'slurtest_add_2' : [
+            "63an_start_220319",
+            "6xtscale_220306",
+            "6xtscale_220319",
+            "hacketi_220319_start",
+            "janissa_IR1",
+            "slurtest02_IR2",
+            "slurtest03_IR2",
+            "slurtest04_IR1",
+            "slurtest05_FK",
+            "slurtest05_IR1",
+            "slurtest05_IR2",
+            "slurtest09_FK1",
+            "slurtest09_IR1",
         ]
 }
+    
 
 
 class Dataset:
@@ -51,21 +67,25 @@ class Dataset:
         "holzap_dev" : "datasets/OnsetLabeledInstr2013/development/",
         "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_wav/",
         "slurtest_add_1" : "datasets/slurtest_add/slurtest_add_audio/",
+        "slurtest_add_2" : "datasets/slurtest_add/slurtest_add_audio/",
     }
     __DATASET_ANNOTATION_PATHS = {
         "holzap_dev" : "datasets/OnsetLabeledInstr2013/development/",
         "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_annotations/",
         "slurtest_add_1" : "datasets/slurtest_add/slurtest_add_annotations/",
+        "slurtest_add_2" : "datasets/slurtest_add/my_annotations/",
     }
     __AUDIO_FORMATS = {
         "holzap_dev" : "wav",
         "initslurtest" : "wav",
         "slurtest_add_1" : "wav",
+        "slurtest_add_2" : "wav",
     }
     __ANNOTATION_FORMATS = {
         "holzap_dev": "onsets",
         "initslurtest" : "txt",
-        "slurtest_add_1" : "txt"
+        "slurtest_add_1" : "txt",
+        "slurtest_add_2" : "txt"
     }
 
     def __init__(self, dataset_name, audio_format="wav", annotation_format="csv"):
@@ -122,6 +142,9 @@ class Dataset:
         elif self.dataset_name == 'slurtest_add_1':
             base = "datasets/slurtest_add/slurtest_add_audio/"
             return [base + file + ".wav" for file in PATHS["slurtest_add_1"]]
+        elif self.dataset_name == 'slurtest_add_2':
+            base = "datasets/slurtest_add/slurtest_add_audio/"
+            return [base + file + ".wav" for file in PATHS["slurtest_add_2"]]
         return self.audio_paths
     
     def get_annotation_paths(self):
