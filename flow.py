@@ -61,7 +61,10 @@ def data_generator(
     epochs,
     idx, 
     sampling=True,
-    mode=None
+    mode=None,
+    standard=False,
+    mean=None,
+    std=None
 ):
     
     #for _ in range(steps_per_epoch * epochs):
@@ -81,36 +84,42 @@ def data_generator(
         fname = audio_fnames[file_i]
         
         if mode=="use_prep_frames":
-            frames_normalized = mm_frames_normalized[file_i]
-            
+            frames = mm_frames_normalized[file_i]
+        elif mode=="use_raw_frames":
+            # No normalization
+            frames = mm_proc_frames[file_i]    
         else:
             # Compute frames
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 fxn()
-                frames_normalized = cnn_normalize(preprocessor(fname))
-        #print("Frame size: ", frames_normalized.shape[0])
+                frames = cnn_normalize(preprocessor(fname))
+
+        if standard:
+            frames = (frames-mean)/std
+            
+        #print("Frame size: ", frames.shape[0])
 
         # Retrieve onsets 
         onsets = onset_vectors[file_i]
-        #print("Computed frames of size ", frames_normalized.shape)
+        #print("Computed frames of size ", frames.shape)
         #print("Onset vectors have len ", len(onsets))
 
         # Sample a set of indices (defined from audio start,
         # that is CONTEXT values counted from x array start)
         if sampling:
             focus_idx = np.random.choice(
-                np.arange(frames_normalized.shape[0]-2*CONTEXT-1), 
+                np.arange(frames.shape[0]-2*CONTEXT-1), 
                 size=batch_size
             )
-            #print("Sampled focus idx between ", 0, " and ", frames_normalized.shape[0]-2*CONTEXT-1)
+            #print("Sampled focus idx between ", 0, " and ", frames.shape[0]-2*CONTEXT-1)
         else:
             #print("Focus idx from ", frame_p, " to ", frame_p+batch_size)
             focus_idx = np.arange(frame_p, frame_p+batch_size)
         
 
         # Segmentation
-        x = [frames_normalized[focus:focus+2*CONTEXT+1,:,:] for focus in focus_idx]
+        x = [frames[focus:focus+2*CONTEXT+1,:,:] for focus in focus_idx]
         x = np.transpose(np.stack(x, 0), [0,2,1,3])
         #print("Segmented x has shape ", x.shape)
         if x.shape[0] != batch_size:
@@ -121,7 +130,7 @@ def data_generator(
         yield (x, y)
 
         if not sampling:
-            if frame_p + 2*batch_size >= frames_normalized.shape[0]-2*CONTEXT-1:
+            if frame_p + 2*batch_size >= frames.shape[0]-2*CONTEXT-1:
                 if file_p == len(idx) - 1:
                     ep += 1
                     print("Generator reached end of epoch. Resetting...")
@@ -147,30 +156,33 @@ def compute_steps(idx, bs):
 
 loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=False)
 optimizer = tf.keras.optimizers.Adam()
-metrics = [
-    tf.keras.metrics.TruePositives(name='tp', thresholds=0.5),
-    tf.keras.metrics.TrueNegatives(name='tn', thresholds=0.5),
-    tf.keras.metrics.FalsePositives(name='fp', thresholds=0.5),
-    tf.keras.metrics.FalseNegatives(name='fn', thresholds=0.5),
-]
+metrics = []
 
 continue_run = False
 training_mode = "all" # REMEMBER TO CHANGE
-standard = False
+check_at_epoch = 10
+
 save = True # REMEMBER TO CHANGE
-training_name = "added-sample-gen-nostandard" # REMEMBER TO CHANGE
-date_today = "220409" # TODO - automatically
-n_epochs = 50 # REMEMBER TO CHANGE
+training_name = "ab-seq-100eps-nostandard" # REMEMBER TO CHANGE
+save_path = "results/cnn-training-220423/" # TODO - automatically
+
+n_epochs = 100 # REMEMBER TO CHANGE
 bs = 256
+learning_r = 0.001
 steps_per_epoch = 400
 val_steps_per_epoch = 30
+
 nogen = False 
-sampling = True
+sampling = False
+standard = False
+mode = 'use_prep_frames'
+#mode = 'use_raw_frames' # No preparing
+
 
 if standard:
-    with open('results/cnn-training-220331/mean_by_fold.pickle', 'rb') as file_pi:
+    with open('results/computed/added_means_by_fold.pickle', 'rb') as file_pi:
         means = pickle.load(file_pi)
-    with open('results/cnn-training-220331/std_by_fold.pickle', 'rb') as file_pi:
+    with open('results/computed/added_std_by_fold.pickle', 'rb') as file_pi:
         stds = pickle.load(file_pi)
 
 if isinstance(training_mode, int):
@@ -200,15 +212,16 @@ while fold < n_splits:
     #train_onset_ratio = y_train.sum()/len(y_train)
 
     # Normalize with training set statistics
-    #if standard:
-    #    X_train = (X_train - means[fold])/stds[fold]
-    #    X_test = (X_test - means[fold])/stds[fold]
+    if standard:
+        mean = means[fold]
+        std = stds[fold]
+    else:
+        mean, std = None, None
 
     # Model
     if not continue_run:
         tf.keras.backend.clear_session()
     (model, norm_layer)=get_model(finetune=False)
-    
     model.compile(optimizer=optimizer,
                 loss=loss_fn,
                 metrics=metrics)
@@ -229,7 +242,8 @@ while fold < n_splits:
             epochs=n_epochs,
             idx=train_idx,
             sampling=sampling,
-            mode='use_prep_frames'
+            mode=mode,
+            standard=standard, mean=mean, std=std,
         )
         y = None
         validation_data = data_generator(
@@ -238,11 +252,17 @@ while fold < n_splits:
             epochs=n_epochs,
             idx=test_idx,
             sampling=sampling,
-            mode='use_prep_frames'
+            mode=mode,
+            standard=standard, mean=mean, std=std,
         )
 
-
+    checkpoint_path = save_path + "cp-{epoch:04d}.ckpt"
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path, 
+                                                    save_weights_only=True,
+                                                    save_freq=int(steps_per_epoch*check_at_epoch)
+    )
     # Training
+    
     history = model.fit(
         x = x, y = y, 
         steps_per_epoch = steps_per_epoch,
@@ -251,17 +271,17 @@ while fold < n_splits:
         validation_data = validation_data,
         validation_steps  = val_steps_per_epoch,
         class_weight = {0: 1., 1: 1/0.035},
+        callbacks=cp_callback,
         verbose=1
     )
 
     # Saving
     if save:
-        model.save('results/cnn-training-{}/fold_{}_{}_model'.format(date_today, fold, training_name))
-        with open('results/cnn-training-{}/fold_{}_{}_history.pickle'.format(date_today, fold, training_name), 'wb') as file_pi:
+        model.save(save_path + 'fold_{}_{}_model'.format(fold, training_name))
+        with open(save_path + 'fold_{}_{}_history.pickle'.format(fold, training_name), 'wb') as file_pi:
             pickle.dump(history.history, file_pi)
     
     
     if training_mode != "all":
         break
     fold += 1
-
