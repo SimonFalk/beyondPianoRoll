@@ -7,7 +7,12 @@ datasets/OnsetLabeledInstr2013
 madmom/
 models/*.pkl
 results/cnn-training-22040*
+results/cnn-training-2203*
+results/hfc-eval*
+results/madmom*
+results/processor*
 results/tensorboard
+
 hfc-files/*.xlsx
 
 
