@@ -1,0 +1,119 @@
+---COMPARING SEQUENTIAL AND SAMPLED BATCHING---
+
+*** Sequential ***
+
+slurtest04.wav	F-score: 94.19
+slurtest18.wav	F-score: 55.26
+stormhatten_IR2.wav	F-score: 83.33
+slurtest01_IR2.wav	F-score: 93.02
+6xtpsg_220319.wav	F-score: 82.68
+6xtpsg_220306.wav	F-score: 79.33
+/home/simonf/.venv/onsets/lib/python3.8/site-packages/madmom/io/audio.py:493: WavFileWarning: Chunk (non-data) not understood, skipping it.
+  file_sample_rate, signal = wavfile.read(filename, mmap=True)
+slurtest04_FK1.wav	F-score: 95.36
+slurtest03_IR1.wav	F-score: 90.91
+Fold 0    average F-score 84.26
+
+1
+slurtest05.wav	F-score: 81.01
+slurtest04_IR2.wav	F-score: 95.36
+melodyvib_220319.wav	F-score: 62.44
+slurtest09_IR2.wav	F-score: 87.67
+janissa_IR2.wav	F-score: 73.26
+slurtest01_FK1.wav	F-score: 88.37
+slurtest08_FK1.wav	F-score: 97.92
+Fold 1    average F-score 83.72
+
+2
+slurtest03.wav	F-score: 91.47
+slurtest11.wav	F-score: 61.54
+slurtest15.wav	F-score: 87.00
+slurtest02_IR1.wav	F-score: 95.31
+slurtest03_FK1.wav	F-score: 95.24
+slurtest01_IR1.wav	F-score: 87.50
+63an_start_220306.wav	F-score: 84.02
+Fold 2    average F-score 86.01
+
+3
+slurtest02.wav	F-score: 93.85
+slurtest07.wav	F-score: 93.93
+slurtest08.wav	F-score: 95.14
+/home/simonf/.venv/onsets/lib/python3.8/site-packages/madmom/io/audio.py:493: WavFileWarning: Chunk (non-data) not understood, skipping it.
+  file_sample_rate, signal = wavfile.read(filename, mmap=True)
+slurtest14.wav	F-score: 86.24
+slurtest17.wav	F-score: 61.16
+slurtest19.wav	F-score: 93.89
+stormhatten_IR1.wav	F-score: 89.80
+Fold 3    average F-score 87.71
+
+4
+slurtest01.wav	F-score: 88.06
+slurtest06.wav	F-score: 95.28
+slurtest09.wav	F-score: 86.09
+slurtest10.wav	F-score: 44.44
+slurtest12.wav	F-score: 69.88
+slurtest13.wav	F-score: 88.17
+slurtest16.wav	F-score: 85.38
+Fold 4    average F-score 79.62
+
+Total 0.8609198567887634
+
+*** Sampled ***
+
+0
+slurtest04.wav	F-score: 91.72
+slurtest18.wav	F-score: 51.28
+stormhatten_IR2.wav	F-score: 81.94
+slurtest01_IR2.wav	F-score: 93.02
+6xtpsg_220319.wav	F-score: 78.72
+6xtpsg_220306.wav	F-score: 74.61
+/home/simonf/.venv/onsets/lib/python3.8/site-packages/madmom/io/audio.py:493: WavFileWarning: Chunk (non-data) not understood, skipping it.
+  file_sample_rate, signal = wavfile.read(filename, mmap=True)
+slurtest04_FK1.wav	F-score: 93.51
+slurtest03_IR1.wav	F-score: 90.91
+Fold 0    average F-score 81.96
+
+1
+slurtest05.wav	F-score: 83.12
+slurtest04_IR2.wav	F-score: 96.64
+melodyvib_220319.wav	F-score: 55.45
+slurtest09_IR2.wav	F-score: 87.67
+janissa_IR2.wav	F-score: 76.36
+slurtest01_FK1.wav	F-score: 89.76
+slurtest08_FK1.wav	F-score: 96.91
+Fold 1    average F-score 83.70
+
+2
+slurtest03.wav	F-score: 92.19
+slurtest11.wav	F-score: 64.00
+slurtest15.wav	F-score: 86.61
+slurtest02_IR1.wav	F-score: 94.49
+slurtest03_FK1.wav	F-score: 94.49
+slurtest01_IR1.wav	F-score: 92.06
+63an_start_220306.wav	F-score: 81.82
+Fold 2    average F-score 86.52
+
+3
+slurtest02.wav	F-score: 91.73
+slurtest07.wav	F-score: 94.42
+slurtest08.wav	F-score: 94.18
+/home/simonf/.venv/onsets/lib/python3.8/site-packages/madmom/io/audio.py:493: WavFileWarning: Chunk (non-data) not understood, skipping it.
+  file_sample_rate, signal = wavfile.read(filename, mmap=True)
+slurtest14.wav	F-score: 82.35
+slurtest17.wav	F-score: 60.71
+slurtest19.wav	F-score: 90.95
+stormhatten_IR1.wav	F-score: 87.79
+Fold 3    average F-score 86.02
+
+4
+slurtest01.wav	F-score: 88.06
+slurtest06.wav	F-score: 96.49
+slurtest09.wav	F-score: 84.97
+slurtest10.wav	F-score: 49.18
+slurtest12.wav	F-score: 67.42
+slurtest13.wav	F-score: 81.19
+slurtest16.wav	F-score: 81.78
+Fold 4    average F-score 78.44
+
+
+F-measure for total 0.8505654281098546
