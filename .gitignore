@@ -6,7 +6,8 @@ datasets/madmom_models-master
 datasets/OnsetLabeledInstr2013
 madmom/
 models/*.pkl
-results/
+results/cnn-training-22040*
+results/tensorboard
 hfc-files/*.xlsx
 
 
