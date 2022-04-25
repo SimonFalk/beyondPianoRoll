@@ -1,5 +1,13 @@
 import os
 
+##Dataset split:
+
+# A, B, and C1 used for validation/development
+# C2 used for test
+# C2 chosen by sampling 2 random recordings from the "tricky"(first 4) in C
+# and sampling 2 random recordings from the "easy"(last 9) in C
+# and an additional recording containing vibrato.
+
 PATHS = {
         "holzap_dev" : [
             'datasets/OnsetLabeledInstr2013/development/Piano/piano1', 
@@ -45,18 +53,20 @@ PATHS = {
         ],
         'slurtest_add_2' : [
             "63an_start_220319",
-            "6xtscale_220306",
-            "6xtscale_220319",
             "hacketi_220319_start",
             "janissa_IR1",
             "slurtest02_IR2",
             "slurtest03_IR2",
             "slurtest04_IR1",
-            "slurtest05_FK",
             "slurtest05_IR1",
             "slurtest05_IR2",
             "slurtest09_FK1",
-            "slurtest09_IR1",
+        ],
+        'slurtest_test' : [
+            "6xtscale_220306", # C2
+            "6xtscale_220319", # C2
+            "slurtest05_FK", # C2
+            "slurtest09_IR1", # C2
         ]
 }
     
@@ -68,24 +78,28 @@ class Dataset:
         "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_wav/",
         "slurtest_add_1" : "datasets/slurtest_add/slurtest_add_audio/",
         "slurtest_add_2" : "datasets/slurtest_add/slurtest_add_audio/",
+        "slurtest_test" :  "datasets/slurtest_add/slurtest_add_audio/",
     }
     __DATASET_ANNOTATION_PATHS = {
         "holzap_dev" : "datasets/OnsetLabeledInstr2013/development/",
         "initslurtest" : "datasets/initslurtest_vn/initslurtest_vn_annotations/",
         "slurtest_add_1" : "datasets/slurtest_add/slurtest_add_annotations/",
-        "slurtest_add_2" : "datasets/slurtest_add/my_annotations/",
+        "slurtest_add_2" : "datasets/slurtest_add/new_annotations/",
+         "slurtest_test" :   "datasets/slurtest_add/new_annotations/",
     }
     __AUDIO_FORMATS = {
         "holzap_dev" : "wav",
         "initslurtest" : "wav",
         "slurtest_add_1" : "wav",
         "slurtest_add_2" : "wav",
+        "slurtest_test" :   "wav"
     }
     __ANNOTATION_FORMATS = {
         "holzap_dev": "onsets",
         "initslurtest" : "txt",
         "slurtest_add_1" : "txt",
-        "slurtest_add_2" : "txt"
+        "slurtest_add_2" : "txt",
+         "slurtest_test" :   "txt"
     }
 
     def __init__(self, dataset_name, audio_format="wav", annotation_format="csv"):
@@ -138,13 +152,15 @@ class Dataset:
         elif self.dataset_name == "initslurtest":
             base = "datasets/initslurtest_vn/initslurtest_vn_wav/"
             return [base + "slurtest{:02d}.wav".format(i) for i in range(1,20)]
-
         elif self.dataset_name == 'slurtest_add_1':
             base = "datasets/slurtest_add/slurtest_add_audio/"
             return [base + file + ".wav" for file in PATHS["slurtest_add_1"]]
         elif self.dataset_name == 'slurtest_add_2':
             base = "datasets/slurtest_add/slurtest_add_audio/"
             return [base + file + ".wav" for file in PATHS["slurtest_add_2"]]
+        elif self.dataset_name == 'slurtest_test':
+            base = "datasets/slurtest_add/slurtest_add_audio/"
+            return [base + file + ".wav" for file in PATHS["slurtest_test"]]
         return self.audio_paths
     
     def get_annotation_paths(self):
@@ -156,4 +172,10 @@ class Dataset:
         elif self.dataset_name == 'slurtest_add_1':
             base = "datasets/slurtest_add/slurtest_add_annotations/"
             return [base + file + ".txt" for file in PATHS["slurtest_add_1"]]
+        elif self.dataset_name == 'slurtest_add_2':
+            base = "datasets/slurtest_add/new_annotations/"
+            return [base + file + ".txt" for file in PATHS["slurtest_add_2"]]
+        elif self.dataset_name == 'slurtest_test':
+            base = "datasets/slurtest_add/new_annotations/"
+            return [base + file + ".txt" for file in PATHS["slurtest_test"]]
         return self.annotation_paths
