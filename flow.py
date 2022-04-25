@@ -154,7 +154,7 @@ def main(finetune, extend, dropout_p, relu):
 
     # Custom split:
     n_splits = 1
-    kf_gen = [[np.arange(19), np.arange(19, len(audio_fnames))]]
+    kf_gen = [[np.arange(len(audio_fnames)), 0]]
 
     def compute_steps(idx, bs):
         song_sizes = np.array([len(f) for f in mm_frames_normalized])[idx]-2*CONTEXT-1
@@ -165,15 +165,15 @@ def main(finetune, extend, dropout_p, relu):
     optimizer = tf.keras.optimizers.Adam()
     metrics = []
 
-    datasets = "a"
+    datasets = "ab"
     continue_run = False
     training_mode = "all" # REMEMBER TO CHANGE
-    check_at_epoch = None
+    check_at_epoch = 10
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-220425a/" # TODO - automatically
-    n_epochs = 35 # REMEMBER TO CHANGE
+    save_path = "results/cnn-training-220426/" # TODO - automatically
+    n_epochs = 90 # REMEMBER TO CHANGE
     learning_r = 0.001
     bs = 256
     steps_per_epoch = 0 # is set later
@@ -288,8 +288,10 @@ def main(finetune, extend, dropout_p, relu):
             steps_per_epoch = steps_per_epoch,
             epochs          = n_epochs,
             # Validation data
-            validation_data = validation_data,
-            validation_steps  = val_steps_per_epoch,
+            validation_data = None,
+            validation_steps = None,
+            #validation_data = validation_data,
+            #validation_steps  = val_steps_per_epoch,
             class_weight = {0: 1., 1: 1/0.035},
             callbacks=cp_callback,
             verbose=1
@@ -307,6 +309,8 @@ def main(finetune, extend, dropout_p, relu):
         fold += 1
 
 if __name__=="__main__":
+    main(finetune=False, extend=False, dropout_p=0.3, relu=False)
+    """
     for relu in [True, False]:
         for dropout_p in [0,0.3,0.5]:
             for mode in ["normal", "finetune", "extend"]:
@@ -316,3 +320,4 @@ if __name__=="__main__":
                     main(finetune=True, extend=False, dropout_p=dropout_p, relu=relu)
                 elif mode=="extend":
                     main(finetune=True, extend=True, dropout_p=dropout_p, relu=relu)
+    """
