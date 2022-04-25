@@ -42,5 +42,5 @@ def cnn_preprocessor(file_input=True):
     if file_input:
         pre_processor = SequentialProcessor((sig, multi, stack, pad))
     else:
-        pre_processor = SequentialProcessor((sig, multi, stack, pad))
+        pre_processor = SequentialProcessor((multi, stack, pad))
     return pre_processor
