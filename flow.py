@@ -41,9 +41,10 @@ def cnn_normalize(frames):
 
 ds0 = Dataset("initslurtest")
 ds1 = Dataset("slurtest_add_1")
+ds2 = Dataset("slurtest_add_2")
 
-audio_fnames = ds0.get_audio_paths() + ds1.get_audio_paths()
-label_fnames = ds0.get_annotation_paths() + ds1.get_annotation_paths()
+audio_fnames = ds0.get_audio_paths() + ds1.get_audio_paths() + ds2.get_audio_paths()
+label_fnames = ds0.get_annotation_paths() + ds1.get_annotation_paths() + ds2.get_annotation_paths()
 
 audios = [madmom.audio.signal.load_wave_file(filename)[0] for filename in audio_fnames]
 sample_rates = [madmom.audio.signal.load_wave_file(filename)[1] for filename in audio_fnames]
@@ -163,8 +164,8 @@ training_mode = "all" # REMEMBER TO CHANGE
 check_at_epoch = 10
 
 save = True # REMEMBER TO CHANGE
-training_name = "ab-seq-100eps-nostandard" # REMEMBER TO CHANGE
-save_path = "results/cnn-training-220423/" # TODO - automatically
+training_name = "abc-seq-100eps-nostandard" # REMEMBER TO CHANGE
+save_path = "results/cnn-training-220425/" # TODO - automatically
 
 n_epochs = 100 # REMEMBER TO CHANGE
 bs = 256
