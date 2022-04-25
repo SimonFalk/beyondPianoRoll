@@ -2,24 +2,25 @@ import numpy as np
 import madmom
 from madmom.features.onsets import CNNOnsetProcessor, OnsetPeakPickingProcessor
 
-def bock_onsets(file, ada_comb=True):
-    typ_dist = None
-    cnn = CNNOnsetProcessor()
-    act_fn = cnn(file)
-    pp = OnsetPeakPickingProcessor()
-    onsets = pp.process_offline(act_fn)
-
-    if ada_comb:
-        # Compute median of IOIs
-        typ_dist = np.median(np.ediff1d(onsets))
-        pp = OnsetPeakPickingProcessor(combine=typ_dist*0.5)
+def simple_energy_onsets(file, base_onsets=None, energy_thres=1.0, onset_thres=0.7, combine=0.1, frame_size=1024, fps=100):
+    if base_onsets is None:
+        cnn = CNNOnsetProcessor()
+        act_fn = cnn(file)
+        pp = OnsetPeakPickingProcessor(threshold=onset_thres, combine=combine)
         onsets = pp.process_offline(act_fn)
-    return onsets, typ_dist
+    else:
+        onsets = base_onsets
 
-def local_energy(file, fps, frame_size):
     sig = madmom.audio.signal.Signal(file, dtype=float)
     frames = madmom.audio.signal.FramedSignal(signal=sig, frame_size=frame_size, fps=fps)
-    return frames.energy()
+    energy_at_onsets = frames.energy()[(onsets*fps).astype(int)]
+
+    hard_idx = np.where(energy_at_onsets<energy_thres)[0]
+    soft_idx = np.where(energy_at_onsets>energy_thres)[0]
+
+    return onsets[hard_idx], onsets[soft_idx]
+
+    
 
 def legato_mg(file, rel_delta=None, sep=None):
     """
@@ -50,10 +51,6 @@ def legato_mg(file, rel_delta=None, sep=None):
     
     # Output: Onset times together with legato measure
     return onsets, legato_meas
-
-def onsets_threshold_gate(onsets, values, threshold):
-    valid_idx = np.where(values>threshold)[0]
-    return onsets[valid_idx]
 
 if __name__=="__main__":
     onsets, leg = legato_mg(

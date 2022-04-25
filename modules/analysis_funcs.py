@@ -36,6 +36,17 @@ def get_test_peaks(activations, f_rate, threshold=0.5, kernel_size=5, n_pre=1, n
                                         post_max=n_post
     )[0].astype(np.float32)*f_rate
 
+def merging_module(note_onsets, hard_onsets, tol_sec):
+    matching = []
+    lacking = []
+    for t in range(len(note_onsets)):
+        matches = np.where(np.abs(hard_onsets-note_onsets[t])<tol_sec, 1, 0)
+        if np.sum(matches)>0:
+            matching.append(note_onsets[t])
+        else:
+            lacking.append(note_onsets[t])
+    return np.array(matching), np.array(lacking)
+
 def aubio_peakpicker_do(hfc, threshold=0.2, win_pre=1, win_post=5):
     
     out = np.zeros_like(hfc)
