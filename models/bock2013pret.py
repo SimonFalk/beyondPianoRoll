@@ -20,7 +20,7 @@ def compare_w(w1,w2):
     #            t1 = np.take(np.take(w1, indices=[0], axis=dim1), indices=[0], axis=dim2)
     #            t2 = np.take(np.take(w2, indices=[0], axis=dim1), indices=[0], axis=dim2)          
 
-def get_model(finetune=False, relu=False):
+def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
 
     tf.keras.backend.set_floatx("float64")
 
@@ -34,6 +34,8 @@ def get_model(finetune=False, relu=False):
     get_custom_objects().update({'custom_activation': Activation(custom_activation)})
 
     conv_activation = "relu" if relu else "tanh" 
+    if extend:
+        finetune=True
 
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(80, 15, 3)),
@@ -61,11 +63,16 @@ def get_model(finetune=False, relu=False):
                 strides=(1,3)
         ),
         tf.keras.layers.Flatten(),
-        tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(256, activation = Activation(custom_activation, name='SpecialActivation')),
-        tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(1, activation = Activation(custom_activation, name='SpecialActivation')), 
+        tf.keras.layers.Dropout(dropout_p),
+        tf.keras.layers.Dense(256, trainable = not extend,
+            activation = Activation(custom_activation, name='SpecialActivation')),
+        tf.keras.layers.Dropout(dropout_p),
     ])
+
+    if extend:
+        model.add(tf.keras.layers.Dense(256))
+        model.add(tf.keras.layers.Dropout(dropout_p))
+    model.add(tf.keras.layers.Dense(1, activation = Activation(custom_activation, name='SpecialActivation')))
 
     model.layers[1].set_weights([
         np.transpose(p.layers[1].weights, [2,3,0,1]), 
@@ -81,24 +88,20 @@ def get_model(finetune=False, relu=False):
         p.layers[6].bias
     ])
 
-    model.layers[9].set_weights([
+    model.layers[-1].set_weights([
         p.layers[7].weights, 
         p.layers[7].bias
     ])
     
-    w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
-    w2 = model.layers[1].get_weights()[0]
-    np.testing.assert_allclose(w1, w2, rtol=0, atol=np.finfo(float).eps)
+    #w1 = np.transpose(p.layers[1].weights, [2,3,0,1])
+    #w2 = model.layers[1].get_weights()[0]
+    #np.testing.assert_allclose(w1, w2, rtol=0, atol=np.finfo(float).eps)
     #compare_w(w1,w2)
     
     return model, p.layers[0]
 
 if __name__=="__main__":
-    (model, norm_layer)=get_model()
-    with open("models/bock2013pret-tf.pkl", 'wb') as handle:
-        pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    '''
-    np.save("models/bock2013pret_inv_std", norm_layer.inv_std)
-    np.save("models/bock2013pret_mean", norm_layer.mean)
-    '''
+    (model, norm_layer)=get_model(finetune=True)
+    print(model.summary())
+    (model, norm_layer)=get_model(finetune=False)
+    print(model.summary())
