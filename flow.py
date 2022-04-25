@@ -40,7 +40,7 @@ def cnn_normalize(frames):
     frames_normalized = (frames - np.reshape(mean, (1,80,3)))*np.reshape(inv_std, (1,80,3))
     return frames_normalized
 
-def main(finetune, extend, dropout_p):
+def main(finetune, extend, dropout_p, relu):
 
     ds0 = Dataset("initslurtest")
     ds1 = Dataset("slurtest_add_1")
@@ -173,7 +173,7 @@ def main(finetune, extend, dropout_p):
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
     save_path = "results/cnn-training-220425a/" # TODO - automatically
-    n_epochs = 35 # REMEMBER TO CHANGE
+    n_epochs = 1 # REMEMBER TO CHANGE
     learning_r = 0.001
     bs = 256
     steps_per_epoch = 0 # is set later
@@ -239,7 +239,7 @@ def main(finetune, extend, dropout_p):
         # Model
         if not continue_run:
             tf.keras.backend.clear_session()
-        (model, norm_layer)=get_model(finetune=finetune, extend=extend, dropout_p=dropout_p)
+        (model, norm_layer)=get_model(finetune=finetune, extend=extend, dropout_p=dropout_p, relu=relu)
         model.compile(optimizer=optimizer,
                     loss=loss_fn,
                     metrics=metrics)
@@ -282,7 +282,6 @@ def main(finetune, extend, dropout_p):
                                                         save_weights_only=True,
                                                         save_freq=int(steps_per_epoch*check_at_epoch))]
         # Training
-        """
         history = model.fit(
             x = x, y = y, 
             steps_per_epoch = steps_per_epoch,
@@ -294,7 +293,6 @@ def main(finetune, extend, dropout_p):
             callbacks=cp_callback,
             verbose=1
         )
-        """
 
         # Saving
         if save:
@@ -308,11 +306,12 @@ def main(finetune, extend, dropout_p):
         fold += 1
 
 if __name__=="__main__":
-    for dropout_p in [0,0.3,0.5]:
-        for mode in ["normal", "finetune", "extend"]:
-            if mode=="normal":
-                main(finetune=False, extend=False, dropout_p=dropout_p)
-            elif mode=="finetune":
-                main(finetune=True, extend=False, dropout_p=dropout_p)
-            elif mode=="extend":
-                main(finetune=True, extend=True, dropout=dropout_p)
+    for relu in [True, False]:
+        for dropout_p in [0,0.3,0.5]:
+            for mode in ["normal", "finetune", "extend"]:
+                if mode=="normal":
+                    main(finetune=False, extend=False, dropout_p=dropout_p, relu=relu)
+                elif mode=="finetune":
+                    main(finetune=True, extend=False, dropout_p=dropout_p, relu=relu)
+                elif mode=="extend":
+                    main(finetune=True, extend=True, dropout_p=dropout_p, relu=relu)
