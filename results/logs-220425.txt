@@ -1,0 +1,5 @@
+
+Baseline model (results/cnn-training-220425/fold_0_a-seq-50eps-lr0.0010-nostandard_model)
+average F-score 85.51
+Total (weighted) F-score:  85.12
+
