@@ -256,7 +256,7 @@ while fold < n_splits:
             standard=standard, mean=mean, std=std,
         )
 
-    checkpoint_path = save_path + "cp-{epoch:04d}.ckpt"
+    checkpoint_path = save_path + 'fold_{}_{}'.format(fold,training_name)+"cp-{epoch:04d}.ckpt"
     cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path, 
                                                     save_weights_only=True,
                                                     save_freq=int(steps_per_epoch*check_at_epoch)
