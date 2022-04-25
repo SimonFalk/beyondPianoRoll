@@ -7,3 +7,7 @@ Total (weighted) F-score:  85.12
 @35 epochs:
 Average F-score 85.86
 Total (weighted) F-score:  85.40
+
+@35 epochs with learning rate 0.0001:
+Average F-score 83.82
+Total (weighted) F-score:  83.56
