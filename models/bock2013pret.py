@@ -70,7 +70,7 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
     ])
 
     if extend:
-        model.add(tf.keras.layers.Dense(256), activation = Activation(custom_activation, name='SpecialActivation'))
+        model.add(tf.keras.layers.Dense(256, activation = Activation(custom_activation, name='SpecialActivation')))
         model.add(tf.keras.layers.Dropout(dropout_p))
     model.add(tf.keras.layers.Dense(1, activation = Activation(custom_activation, name='SpecialActivation')))
 

@@ -173,7 +173,7 @@ def main(finetune, extend, dropout_p, relu):
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
     save_path = "results/cnn-training-220425a/" # TODO - automatically
-    n_epochs = 1 # REMEMBER TO CHANGE
+    n_epochs = 35 # REMEMBER TO CHANGE
     learning_r = 0.001
     bs = 256
     steps_per_epoch = 0 # is set later
@@ -186,14 +186,15 @@ def main(finetune, extend, dropout_p, relu):
     #mode = 'use_raw_frames' # No preparing
 
 
-    training_name = "{}-{}-{}eps-{}-{}-{}-dropout{:.1f}".format(
+    training_name = "{}-{}-{}eps-{}-{}-{}-dropout{:.1f}{}".format(
         datasets, 
         "nogen" if nogen else ("sample" if sampling else "seq"),
         n_epochs,
         "standard" if standard else "nostandard",
         "finetune" if finetune else "trainable",
         "extend" if extend else "noextend",
-        dropout_p
+        dropout_p,
+        "-relu" if relu else ""
     )
 
 
