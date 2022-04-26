@@ -42,10 +42,28 @@ def merging_module(note_onsets, hard_onsets, tol_sec):
     for t in range(len(note_onsets)):
         matches = np.where(np.abs(hard_onsets-note_onsets[t])<tol_sec, 1, 0)
         if np.sum(matches)>0:
-            matching.append(note_onsets[t])
+            matching.append(t)
         else:
-            lacking.append(note_onsets[t])
+            lacking.append(t)
+            # Returns indices!
     return np.array(matching), np.array(lacking)
+
+def slur_alignment(hard_idx, soft_idx):
+    h = np.zeros((len(hard_idx)+len(soft_idx)))
+    slur_onehot = np.zeros((len(hard_idx)+len(soft_idx), 4))
+    h[hard_idx] = 1
+
+    h_shift = h[1:]
+    h_orig = h[:-1]
+    sos = np.where(np.logical_and(h_orig==1, h_shift==0))[0]
+    inside = np.where(np.logical_and(h_orig==0, h_shift==0))[0]
+    eos = np.where(np.logical_and(h_orig==0, h_shift==1))[0]
+    det = np.where(np.logical_and(h_orig==1, h_shift==1))[0]
+    slur_onehot[sos, 0] = 1
+    slur_onehot[inside, 1] = 1
+    slur_onehot[eos, 2] = 1
+    slur_onehot[det, 3] = 1
+    return slur_onehot
 
 def aubio_peakpicker_do(hfc, threshold=0.2, win_pre=1, win_post=5):
     
