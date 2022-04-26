@@ -1,0 +1,2 @@
+model_checkpoint_path: "fold_0_ab-seq-90eps-nostandard-trainable-noextend-dropout0.3_cp_0090.ckpt"
+all_model_checkpoint_paths: "fold_0_ab-seq-90eps-nostandard-trainable-noextend-dropout0.3_cp_0090.ckpt"
