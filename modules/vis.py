@@ -1,22 +1,54 @@
 import numpy as np
+import matplotlib.path as mpath
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 
-def onset_visualizer(audio, onset_list, lims, ax=None, **plt_kwargs):
-    ONSET_MARKERS = ["v", "^", "^"]
-    ONSET_COLORS = ["k", "r", "g"]
+def onset_visualizer(audio, onset_list, lims, onset_styles=None, ax=None, **plt_kwargs):
+    HEIGHT_SEP = 2000
+    if onset_styles is None:
+        ONSET_MARKERS = ["v", "^", "^"]
+        ONSET_COLORS = ["k", "r", "g"]
+    else:
+        ONSET_MARKERS = onset_styles["m"]
+        ONSET_COLORS = onset_styles["c"]
     if ax is None:
         ax = plt.gca()
     o = 0
     ax.plot(np.linspace(lims[0], lims[1], len(audio)), audio, zorder=0, **plt_kwargs)
 
     while o<len(onset_list):
+        
+
         if o<len(ONSET_MARKERS) and o<len(ONSET_COLORS):
-            ax.scatter(onset_list[o], np.zeros_like(onset_list[o]), 
-                    marker=ONSET_MARKERS[o], c=ONSET_COLORS[o], zorder=len(onset_list)+10-o
+            ax.scatter(onset_list[o], np.zeros_like(onset_list[o])-o*HEIGHT_SEP, 
+                    marker=ONSET_MARKERS[o], c=ONSET_COLORS[o], s=30.0, zorder=len(onset_list)+10-o
             )
         else:
-            ax.scatter(onset_list[o], np.zeros_like(onset_list[o])),
+            ax.scatter(onset_list[o], np.zeros_like(onset_list[o])-o*HEIGHT_SEP, s=30.0),
         o+=1
     return ax
+
+def slur_visualizer(onsets, slur_onehot, sign=1, edgecolor=None, ax=None): 
+    SLUR_HEIGHT = 7000
+    if ax is None:
+        ax = plt.gca()
+
+    starts = onsets*slur_onehot[:,0]
+    ends = onsets*slur_onehot[:,2]
+    starts = starts[starts!=0]
+    ends = ends[ends!=0]
+    Path = mpath.Path
+    pps = []
+    for n in np.arange(0, starts.shape[0]):
+        onset = starts[n]
+        next_onset = ends[n]
+        pps.append(mpatches.PathPatch(
+            Path([(onset, sign*SLUR_HEIGHT*0.25), (.5*(onset+next_onset), sign*SLUR_HEIGHT), (next_onset, sign*SLUR_HEIGHT*0.25)],
+            [Path.MOVETO, Path.CURVE3, Path.CURVE3]),
+            edgecolor=edgecolor, transform=ax.transData))
+    [ax.add_patch(pp) for pp in pps]
+    
+
 
 
 def passage_extractor(audio, onset_list, breakpoints, sr=44100):
