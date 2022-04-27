@@ -34,12 +34,12 @@ def slur_visualizer(onsets, slur_onehot, sign=1, edgecolor=None, ax=None):
         ax = plt.gca()
 
     starts = onsets*slur_onehot[:,0]
-    ends = onsets*slur_onehot[:,2]
+    ends = onsets[1:]*slur_onehot[1:,2] # first onset can't be an end
     starts = starts[starts!=0]
     ends = ends[ends!=0]
     Path = mpath.Path
     pps = []
-    for n in np.arange(0, starts.shape[0]):
+    for n in np.arange(0, min(len(starts), len(ends))):
         onset = starts[n]
         next_onset = ends[n]
         pps.append(mpatches.PathPatch(
