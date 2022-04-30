@@ -4,7 +4,7 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
 def onset_visualizer(audio, onset_list, lims, onset_styles=None, ax=None, **plt_kwargs):
-    HEIGHT_SEP = 2000
+    HEIGHT_SEP = 0.2*np.max(audio)
     if onset_styles is None:
         ONSET_MARKERS = ["v", "^", "^"]
         ONSET_COLORS = ["k", "r", "g"]
@@ -17,8 +17,6 @@ def onset_visualizer(audio, onset_list, lims, onset_styles=None, ax=None, **plt_
     ax.plot(np.linspace(lims[0], lims[1], len(audio)), audio, zorder=0, **plt_kwargs)
 
     while o<len(onset_list):
-        
-
         if o<len(ONSET_MARKERS) and o<len(ONSET_COLORS):
             ax.scatter(onset_list[o], np.zeros_like(onset_list[o])-o*HEIGHT_SEP, 
                     marker=ONSET_MARKERS[o], c=ONSET_COLORS[o], s=30.0, zorder=len(onset_list)+10-o
@@ -28,8 +26,11 @@ def onset_visualizer(audio, onset_list, lims, onset_styles=None, ax=None, **plt_
         o+=1
     return ax
 
-def slur_visualizer(onsets, slur_onehot, sign=1, edgecolor=None, ax=None): 
-    SLUR_HEIGHT = 7000
+def slur_visualizer(onsets, slur_onehot, sign=1, slur_height=None, edgecolor=None, ax=None): 
+    if slur_height is None:
+        SLUR_HEIGHT = 7000
+    else:
+        SLUR_HEIGHT = slur_height
     if ax is None:
         ax = plt.gca()
 
