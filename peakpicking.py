@@ -13,9 +13,6 @@ from modules.analysis_funcs import get_idx_to_fold, get_segmented_data, aubio_pe
 from analyze_detection import evaluate
 from modules.energy_based import legato_mg
 
-%load_ext autoreload
-%autoreload 2
-
 FPS = 100
 CONTEXT = 7
 
