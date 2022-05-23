@@ -63,10 +63,10 @@ PATHS = {
             "slurtest09_FK1",
         ],
         'slurtest_test' : [
-            "6xtscale_220306", # C2
-            "6xtscale_220319", # C2
-            "slurtest05_FK", # C2
-            "slurtest09_IR1", # C2
+            "6xtscale_220306",
+            "6xtscale_220319",
+            "slurtest05_FK",
+            "slurtest09_IR1",
         ]
 }
     
