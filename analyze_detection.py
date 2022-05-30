@@ -34,7 +34,6 @@ def evaluate(true, pred, tol_sec):
 	
 	FP += np.count_nonzero(pred_counted<0.001)
 	merged = np.count_nonzero(pred_counted>1)
-
 	return (CD,FN,FP,doubles,merged)
 
 # Preprocess
