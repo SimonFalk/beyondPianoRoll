@@ -101,7 +101,5 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
     return model, p.layers[0]
 
 if __name__=="__main__":
-    (model, norm_layer)=get_model(finetune=True)
-    print(model.summary())
-    (model, norm_layer)=get_model(finetune=False)
+    (model, norm_layer)=get_model(finetune=False, extend=False, relu=False, dropout_p=0.3)
     print(model.summary())

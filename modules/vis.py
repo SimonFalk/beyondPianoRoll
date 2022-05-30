@@ -4,7 +4,8 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
 def onset_visualizer(audio, onset_list, lims, onset_styles=None, ax=None, **plt_kwargs):
-    HEIGHT_SEP = 0.2*np.max(audio)
+    #HEIGHT_SEP = 0.2*np.max(audio)
+    HEIGHT_SEP=0
     if onset_styles is None:
         ONSET_MARKERS = ["v", "^", "^"]
         ONSET_COLORS = ["k", "r", "g"]

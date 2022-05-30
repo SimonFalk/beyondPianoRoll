@@ -4,9 +4,9 @@ from madmom.features.onsets import CNNOnsetProcessor, OnsetPeakPickingProcessor
 
 def simple_energy_onsets(file, base_onsets=None, energy_thres=1.0, onset_thres=0.7, combine=0.1, frame_size=1024, fps=100):
     if base_onsets is None:
-        cnn = CNNOnsetProcessor()
+        cnn = CNNOnsetProcessor(fps=fps)
         act_fn = cnn(file)
-        pp = OnsetPeakPickingProcessor(threshold=onset_thres, combine=combine)
+        pp = OnsetPeakPickingProcessor(threshold=onset_thres, combine=combine, fps=fps)
         onsets = pp.process_offline(act_fn)
     else:
         onsets = base_onsets
