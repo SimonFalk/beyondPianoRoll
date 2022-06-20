@@ -1,0 +1,1 @@
+FINAL_MODEL_PATH = "results/cnn-training-220426/fold_0_ab-seq-90eps-nostandard-trainable-noextend-dropout0.3_model"

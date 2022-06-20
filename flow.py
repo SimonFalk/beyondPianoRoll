@@ -12,7 +12,6 @@ from sklearn.model_selection import KFold, train_test_split
 import tensorflow as tf
 import madmom
 
-from segment import segment_spectrogram
 from modules.labels import get_label_vector
 from modules.madmom_cnn_prep import cnn_preprocessor
 from datasets import Dataset

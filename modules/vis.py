@@ -3,9 +3,20 @@ import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
-def onset_visualizer(audio, onset_list, lims, onset_styles=None, ax=None, **plt_kwargs):
+def onset_visualizer(passage=None, audio=None, onset_list=None, lims=None, onset_styles=None, ax=None, **plt_kwargs):
+    """
+    Either use a passage as created from passage_extractor()
+    or manually select the audio, onsetlist and 
+    limits (only for visualization purpose)
+    """
+    
     #HEIGHT_SEP = 0.2*np.max(audio)
     HEIGHT_SEP=0
+
+    if passage is not None:
+        audio = passage["audio"]
+        onset_list = passage["onsets"]
+        lims = (passage["abs_start"], passage["abs_end"])
     if onset_styles is None:
         ONSET_MARKERS = ["v", "^", "^"]
         ONSET_COLORS = ["k", "r", "g"]
