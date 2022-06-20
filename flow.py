@@ -44,10 +44,10 @@ def main(finetune, extend, dropout_p, relu):
 
     ds0 = Dataset("initslurtest")
     ds1 = Dataset("slurtest_add_1")
-    #ds2 = Dataset("slurtest_add_2")
+    ds2 = Dataset("slurtest_add_2")
 
-    audio_fnames = ds0.get_audio_paths() + ds1.get_audio_paths() #+ ds2.get_audio_paths()
-    label_fnames = ds0.get_annotation_paths() + ds1.get_annotation_paths() #+ ds2.get_annotation_paths()
+    audio_fnames = ds0.get_audio_paths() + ds1.get_audio_paths() + ds2.get_audio_paths()
+    label_fnames = ds0.get_annotation_paths() + ds1.get_annotation_paths() + ds2.get_annotation_paths()
 
     audios = [madmom.audio.signal.load_wave_file(filename)[0] for filename in audio_fnames]
     sample_rates = [madmom.audio.signal.load_wave_file(filename)[1] for filename in audio_fnames]
@@ -165,7 +165,7 @@ def main(finetune, extend, dropout_p, relu):
     optimizer = tf.keras.optimizers.Adam()
     metrics = []
 
-    datasets = "ab"
+    datasets = "abc"
     continue_run = False
     training_mode = "all" # REMEMBER TO CHANGE
     check_at_epoch = 10
@@ -173,7 +173,7 @@ def main(finetune, extend, dropout_p, relu):
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
     save_path = "results/cnn-training-220426/" # TODO - automatically
-    n_epochs = 90 # REMEMBER TO CHANGE
+    n_epochs = 120 # REMEMBER TO CHANGE
     learning_r = 0.001
     bs = 256
     steps_per_epoch = 0 # is set later
