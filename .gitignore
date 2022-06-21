@@ -4,6 +4,8 @@ datasets/beatboxset1
 datasets/initslurtest_vn_old
 datasets/madmom_models-master
 datasets/OnsetLabeledInstr2013
+datasets/initslurtest_vn
+datasets/slurtest_add
 madmom/
 models/*.pkl
 results/cnn-training-22040*
