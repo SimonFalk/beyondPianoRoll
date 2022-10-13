@@ -9,7 +9,6 @@ def invert_permutation(p):
     s[p] = np.arange(p.size)
     return s
 
-s = invert_permutation(perm)
 
 def get_label_table(Xlist,marg):
     label_table = np.array([], dtype=np.int64).reshape(2*marg+1,0)
