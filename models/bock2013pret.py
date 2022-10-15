@@ -7,6 +7,7 @@ import pickle
 from keras.layers import Activation
 from keras import backend as K
 from keras.utils.generic_utils import get_custom_objects
+from keras.regularizers import l2
 
 
 # Function for debugging (why different weigths after loading to TF model?)
@@ -20,7 +21,7 @@ def compare_w(w1,w2):
     #            t1 = np.take(np.take(w1, indices=[0], axis=dim1), indices=[0], axis=dim2)
     #            t2 = np.take(np.take(w2, indices=[0], axis=dim1), indices=[0], axis=dim2)          
 
-def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
+def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5, l2_lambda=0.01):
 
     tf.keras.backend.set_floatx("float64")
 
@@ -45,7 +46,9 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
             filters = 10,
             kernel_size = (7,3),
             strides = 1,
-            trainable = not finetune
+            trainable = not finetune,
+            kernel_regularizer=l2(l2_lambda), 
+            bias_regularizer=l2(l2_lambda),
         ),
         tf.keras.layers.MaxPooling2D(
             pool_size=(1, 3), 
@@ -56,7 +59,9 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
             filters = 20,
             kernel_size = (3,3),
             strides = 1,
-            trainable = not finetune
+            trainable = not finetune,
+            kernel_regularizer=l2(l2_lambda),
+            bias_regularizer=l2(l2_lambda)
         ),  
         tf.keras.layers.MaxPooling2D(
             pool_size=(1, 3), 
@@ -64,15 +69,25 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5):
         ),
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dropout(dropout_p),
-        tf.keras.layers.Dense(256, trainable = not extend,
-            activation = Activation(custom_activation, name='SpecialActivation')),
+        tf.keras.layers.Dense(256, 
+            trainable = not extend,
+            activation = Activation(custom_activation, name='SpecialActivation'),
+            kernel_regularizer=l2(l2_lambda),
+            bias_regularizer=l2(l2_lambda)
+        ),
         tf.keras.layers.Dropout(dropout_p),
     ])
 
     if extend:
         model.add(tf.keras.layers.Dense(256, activation = Activation(custom_activation, name='SpecialActivation')))
         model.add(tf.keras.layers.Dropout(dropout_p))
-    model.add(tf.keras.layers.Dense(1, activation = Activation(custom_activation, name='SpecialActivation')))
+    model.add(
+        tf.keras.layers.Dense(1, 
+            activation = Activation(custom_activation, name='SpecialActivation'),
+            kernel_regularizer=l2(l2_lambda),
+            bias_regularizer=l2(l2_lambda)
+    )  
+    )
 
     model.layers[1].set_weights([
         np.transpose(p.layers[1].weights, [2,3,0,1]), 
