@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 from numpy import genfromtxt
 import matplotlib.pyplot as plt
-from sklearn.model_selection import KFold, train_test_split
+from sklearn.model_selection import KFold, train_test_split, StratifiedKFold
 
 import tensorflow as tf
 import madmom
@@ -31,6 +31,14 @@ config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    for gpu in gpus:
+        tf.config.experimental.set_virtual_device_configuration(
+                gpu,
+                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]
+                )
+
 preprocessor = cnn_preprocessor()
 
 def cnn_normalize(frames):
@@ -39,14 +47,15 @@ def cnn_normalize(frames):
     frames_normalized = (frames - np.reshape(mean, (1,80,3)))*np.reshape(inv_std, (1,80,3))
     return frames_normalized
 
-def main(finetune, extend, dropout_p, relu):
+def main(finetune, extend, dropout_p, relu, learning_r=0.001):
 
     ds0 = Dataset("initslurtest")
     ds1 = Dataset("slurtest_add_1")
     ds2 = Dataset("slurtest_add_2")
+    ds3 = Dataset("slurtest_test")
 
-    audio_fnames = ds0.get_audio_paths() + ds1.get_audio_paths() + ds2.get_audio_paths()
-    label_fnames = ds0.get_annotation_paths() + ds1.get_annotation_paths() + ds2.get_annotation_paths()
+    audio_fnames = ds0.get_audio_paths() + ds1.get_audio_paths() + ds2.get_audio_paths() + ds3.get_audio_paths()
+    label_fnames = ds0.get_annotation_paths() + ds1.get_annotation_paths() + ds2.get_annotation_paths() + ds3.get_annotation_paths()
 
     audios = [madmom.audio.signal.load_wave_file(filename)[0] for filename in audio_fnames]
     sample_rates = [madmom.audio.signal.load_wave_file(filename)[1] for filename in audio_fnames]
@@ -149,11 +158,22 @@ def main(finetune, extend, dropout_p, relu):
     #random_seed = 119
     #n_splits =  5
     #kf = KFold(n_splits=n_splits, shuffle=True, random_state=True)
-    #kf_gen = list(kf.split(np.arange(len(audio_fnames))))
+    #folds = list(kf.split(np.arange(len(audio_fnames))))
 
+    # Partitioned by musician:
+    sa_recs = list(np.arange(19)) + [23, 25, 28, 32, 36, 37, 45, 46]
+    fk_recs = [22, 29, 30, 33, 44, 47]
+    ir_recs = np.setdiff1d(list(np.arange(49)), sa_recs + fk_recs)
+
+    random_seed = 119
+    n_splits = 5
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_seed)
+    folds = list(skf.split(
+        np.concatenate((sa_recs, ir_recs)), # Indices in devset
+        np.concatenate((np.zeros(len(sa_recs)), np.ones(len(ir_recs)))) # Boolean whether recs are played by a certain musician
+    ))
     # Custom split:
-    n_splits = 1
-    kf_gen = [[np.arange(len(audio_fnames)), 0]]
+    #folds = [[np.arange(len(audio_fnames)), 0]]
 
     def compute_steps(idx, bs):
         song_sizes = np.array([len(f) for f in mm_frames_normalized])[idx]-2*CONTEXT-1
@@ -164,19 +184,19 @@ def main(finetune, extend, dropout_p, relu):
     optimizer = tf.keras.optimizers.Adam()
     metrics = []
 
-    datasets = "abc"
+    datasets = "full"
     continue_run = False
-    training_mode = "all" # REMEMBER TO CHANGE
-    check_at_epoch = 10
+    training_mode = 0 # REMEMBER TO CHANGE
+    check_at_epoch = None # REMEMBER TO CHANGE
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-220426/" # TODO - automatically
-    n_epochs = 120 # REMEMBER TO CHANGE
-    learning_r = 0.001
+    save_path = "results/cnn-training-221015/" # TODO - automatically
+    n_epochs = 200 # REMEMBER TO CHANGE
+    #learning_r = 0.001 as function parameter
     bs = 256
     steps_per_epoch = 0 # is set later
-    val_steps_per_epoch = 30
+    val_steps_per_epoch = 100 # needed?
     nogen = False
     sampling = False
 
@@ -187,7 +207,8 @@ def main(finetune, extend, dropout_p, relu):
 
     training_name = "{}-{}-{}eps-{}-{}-{}-dropout{:.1f}{}".format(
         datasets, 
-        "nogen" if nogen else ("sample" if sampling else "seq"),
+        str(learning_r),
+        #"nogen" if nogen else ("sample" if sampling else "seq"),
         n_epochs,
         "standard" if standard else "nostandard",
         "finetune" if finetune else "trainable",
@@ -211,8 +232,8 @@ def main(finetune, extend, dropout_p, relu):
     while fold < n_splits:
         print()
         print("Fold {}/{} ---------".format(fold, n_splits))
-        train_idx = kf_gen[fold][0]
-        test_idx = kf_gen[fold][1]
+        train_idx = folds[fold][0]
+        test_idx = folds[fold][1]
         print("Train indices: ", train_idx)
         print("Test indices: ", test_idx)
 
@@ -287,11 +308,11 @@ def main(finetune, extend, dropout_p, relu):
             steps_per_epoch = steps_per_epoch,
             epochs          = n_epochs,
             # Validation data
-            validation_data = None,
-            validation_steps = None,
-            #validation_data = validation_data,
-            #validation_steps  = val_steps_per_epoch,
-            class_weight = {0: 1., 1: 1/0.035},
+            #validation_data = None,
+            #validation_steps = None,
+            validation_data = validation_data,
+            validation_steps  = val_steps_per_epoch,
+            #class_weight = {0: 1., 1: 1/0.035},
             callbacks=cp_callback,
             verbose=1
         )
@@ -309,6 +330,8 @@ def main(finetune, extend, dropout_p, relu):
 
 if __name__=="__main__":
     main(finetune=False, extend=False, dropout_p=0.3, relu=False)
+    main(finetune=False, extend=False, dropout_p=0.5, relu=False)
+    main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.01)
     """
     for relu in [True, False]:
         for dropout_p in [0,0.3,0.5]:
