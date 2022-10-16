@@ -21,7 +21,7 @@ def compare_w(w1,w2):
     #            t1 = np.take(np.take(w1, indices=[0], axis=dim1), indices=[0], axis=dim2)
     #            t2 = np.take(np.take(w2, indices=[0], axis=dim1), indices=[0], axis=dim2)          
 
-def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5, l2_lambda=0.01):
+def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5, l2_lambda=0.0):
 
     tf.keras.backend.set_floatx("float64")
 
