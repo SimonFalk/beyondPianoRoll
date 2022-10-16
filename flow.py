@@ -173,16 +173,35 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         np.concatenate((np.zeros(len(sa_recs)), np.ones(len(ir_recs)))) # Boolean whether recs are played by a certain musician
     ))
     # Custom split:
-    #folds = [[np.arange(len(audio_fnames)), 0]]
+    # folds = [[[0,1,2], [3,4,5]]]
+
+    # Precompute statistics:
+    means_per_fold = []
+    std_per_fold = []
+    for train_idx, test_idx in folds:
+        train_frames = np.concatenate([mm_proc_frames[i] for i in train_idx]) 
+        mean_train = train_frames.mean(0)
+        std_train = train_frames.std(0, ddof=1)
+        means_per_fold.append(np.expand_dims(mean_train, axis=0))
+        std_per_fold.append(np.expand_dims(std_train, axis=0))
+    # Positive class_weight
+    W = np.sum([len(vec) for vec in onset_vectors])/np.sum([vec.sum() for vec in onset_vectors])
 
     def compute_steps(idx, bs):
         song_sizes = np.array([len(f) for f in mm_frames_normalized])[idx]-2*CONTEXT-1
         steps_per_song = np.floor_divide(song_sizes, bs)
         return np.sum(steps_per_song)
 
+    def wbce(y_true, y_pred):
+        y_pred = tf.keras.backend.clip(y_pred, 1e-7, 1-1e-7)
+        logits = tf.keras.backend.log(y_pred/(1-y_pred))
+        return tf.nn.weighted_cross_entropy_with_logits(
+            y_true, logits, W
+        )
+
     loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     optimizer = tf.keras.optimizers.Adam()
-    metrics = []
+    metrics = [wbce]
 
     datasets = "full"
     continue_run = False
@@ -191,7 +210,7 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-221015/" # TODO - automatically
+    save_path = "results/cnn-training-221016/" # TODO - automatically
     n_epochs = 200 # REMEMBER TO CHANGE
     #learning_r = 0.001 as function parameter
     bs = 256
@@ -199,8 +218,9 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
     val_steps_per_epoch = 100 # needed?
     nogen = False
     sampling = False
+    cw_dict = {0: 1., 1: W}
 
-    standard = False # keep in mind on which data format statistics are computed 
+    standard = True # keep in mind on which data format statistics are computed 
     mode = 'use_prep_frames' # Preparing by BN layer/"CNN normalization"
     #mode = 'use_raw_frames' # No preparing
 
@@ -216,13 +236,6 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         dropout_p,
         "-relu" if relu else ""
     )
-
-
-    if standard:
-        with open('results/computed/added_means_by_fold.pickle', 'rb') as file_pi:
-            means = pickle.load(file_pi)
-        with open('results/computed/added_std_by_fold.pickle', 'rb') as file_pi:
-            stds = pickle.load(file_pi)
 
     if isinstance(training_mode, int):
         fold = training_mode
@@ -252,8 +265,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
 
         # Normalize with training set statistics
         if standard:
-            mean = means[fold]
-            std = stds[fold]
+            mean = means_per_fold[fold]
+            std = std_per_fold[fold]
         else:
             mean, std = None, None
 
@@ -263,7 +276,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         (model, norm_layer)=get_model(finetune=finetune, extend=extend, dropout_p=dropout_p, relu=relu)
         model.compile(optimizer=optimizer,
                     loss=loss_fn,
-                    metrics=metrics)
+                    metrics=metrics
+        )
                     
         if not sampling:
             steps_per_epoch = compute_steps(train_idx, bs)
@@ -308,11 +322,9 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
             steps_per_epoch = steps_per_epoch,
             epochs          = n_epochs,
             # Validation data
-            #validation_data = None,
-            #validation_steps = None,
             validation_data = validation_data,
             validation_steps  = val_steps_per_epoch,
-            #class_weight = {0: 1., 1: 1/0.035},
+            class_weight = cw_dict,
             callbacks=cp_callback,
             verbose=1
         )
@@ -329,9 +341,10 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         fold += 1
 
 if __name__=="__main__":
-    main(finetune=False, extend=False, dropout_p=0.3, relu=False)
-    main(finetune=False, extend=False, dropout_p=0.5, relu=False)
-    main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.01)
+    main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.001)
+    main(finetune=False, extend=False, dropout_p=0.5, relu=False, learning_r=0.001)
+    #main(finetune=False, extend=False, dropout_p=0.5, relu=False)
+    #main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.01)
     """
     for relu in [True, False]:
         for dropout_p in [0,0.3,0.5]:
