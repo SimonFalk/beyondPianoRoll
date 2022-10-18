@@ -65,6 +65,10 @@ def slur_visualizer(onsets, slur_onehot, sign=1, slur_height=None, edgecolor=Non
 
 
 def passage_extractor(audio, onset_list, breakpoints, sr=44100):
+    """
+    Extract a list of passages given audio and channels of annotations.
+    Breakpoints are given as [p0, p1, p2] where pn are the points to break up the sequence.
+    """
     return [{
             "audio" : audio[int(start*sr):int(end*sr)],
             "onsets": [onsets[np.intersect1d(
