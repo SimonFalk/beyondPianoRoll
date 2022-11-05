@@ -172,8 +172,13 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         np.concatenate((sa_recs, ir_recs)), # Indices in devset
         np.concatenate((np.zeros(len(sa_recs)), np.ones(len(ir_recs)))) # Boolean whether recs are played by a certain musician
     ))
-    # Custom split:
-    # folds = [[[0,1,2], [3,4,5]]]
+    # Custom splits
+    n_splits = 1
+    sa_choice = np.random.choice(sa_recs, size=len(sa_recs), replace=False)
+    ir_choice = np.random.choice(ir_recs, size=len(ir_recs), replace=False)
+    bp_sa = int(len(sa_recs)*0.9)
+    bp_ir = int(len(ir_recs)*0.9)
+    folds = [[list(sa_choice[:bp_sa]) + list(ir_recs[:bp_ir]), list(sa_choice[bp_sa:]) + list(ir_recs[bp_ir:])]]
 
     # Precompute statistics:
     means_per_fold = []
@@ -206,14 +211,14 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
     datasets = "full"
     continue_run = False
     training_mode = 0 # REMEMBER TO CHANGE
-    check_at_epoch = None # REMEMBER TO CHANGE
+    check_at_epoch = 40 # REMEMBER TO CHANGE
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-221016/" # TODO - automatically
-    n_epochs = 200 # REMEMBER TO CHANGE
+    save_path = "results/cnn-training-221101/" # TODO - automatically
+    n_epochs = 1 # REMEMBER TO CHANGE
     #learning_r = 0.001 as function parameter
-    bs = 256
+    bs = 512
     steps_per_epoch = 0 # is set later
     val_steps_per_epoch = 100 # needed?
     nogen = False
@@ -341,8 +346,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         fold += 1
 
 if __name__=="__main__":
-    main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.001)
     main(finetune=False, extend=False, dropout_p=0.5, relu=False, learning_r=0.001)
+    #main(finetune=False, extend=False, dropout_p=0.5, relu=False, learning_r=0.001)
     #main(finetune=False, extend=False, dropout_p=0.5, relu=False)
     #main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.01)
     """
