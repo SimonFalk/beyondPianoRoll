@@ -215,8 +215,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-221101/" # TODO - automatically
-    n_epochs = 1 # REMEMBER TO CHANGE
+    save_path = "results/cnn-training-221108/" # TODO - automatically
+    n_epochs = 200 # REMEMBER TO CHANGE
     #learning_r = 0.001 as function parameter
     bs = 512
     steps_per_epoch = 0 # is set later
