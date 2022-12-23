@@ -173,12 +173,12 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         np.concatenate((np.zeros(len(sa_recs)), np.ones(len(ir_recs)))) # Boolean whether recs are played by a certain musician
     ))
     # Custom splits
-    n_splits = 1
-    sa_choice = np.random.choice(sa_recs, size=len(sa_recs), replace=False)
-    ir_choice = np.random.choice(ir_recs, size=len(ir_recs), replace=False)
-    bp_sa = int(len(sa_recs)*0.9)
-    bp_ir = int(len(ir_recs)*0.9)
-    folds = [[list(sa_choice[:bp_sa]) + list(ir_recs[:bp_ir]), list(sa_choice[bp_sa:]) + list(ir_recs[bp_ir:])]]
+    #n_splits = 1
+    #sa_choice = np.random.choice(sa_recs, size=len(sa_recs), replace=False)
+    #ir_choice = np.random.choice(ir_recs, size=len(ir_recs), replace=False)
+    #bp_sa = int(len(sa_recs)*0.9)
+    #bp_ir = int(len(ir_recs)*0.9)
+    #folds = [[list(sa_choice[:bp_sa]) + list(ir_recs[:bp_ir]), list(sa_choice[bp_sa:]) + list(ir_recs[bp_ir:])]]
 
     # Precompute statistics:
     means_per_fold = []
@@ -208,15 +208,15 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
     optimizer = tf.keras.optimizers.Adam()
     metrics = [wbce]
 
-    datasets = "full"
+    datasets = "sa_ir_strat"
     continue_run = False
-    training_mode = 0 # REMEMBER TO CHANGE
-    check_at_epoch = 40 # REMEMBER TO CHANGE
+    training_mode = "all" # REMEMBER TO CHANGE
+    check_at_epoch = 20 # REMEMBER TO CHANGE
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-221108/" # TODO - automatically
-    n_epochs = 200 # REMEMBER TO CHANGE
+    save_path = "results/cnn-training-221210/" # TODO - automatically
+    n_epochs = 500 # REMEMBER TO CHANGE
     #learning_r = 0.001 as function parameter
     bs = 512
     steps_per_epoch = 0 # is set later
@@ -346,10 +346,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         fold += 1
 
 if __name__=="__main__":
-    main(finetune=False, extend=False, dropout_p=0.5, relu=False, learning_r=0.001)
-    #main(finetune=False, extend=False, dropout_p=0.5, relu=False, learning_r=0.001)
-    #main(finetune=False, extend=False, dropout_p=0.5, relu=False)
-    #main(finetune=False, extend=False, dropout_p=0.3, relu=False, learning_r=0.01)
+    
+    main(finetune=False, extend=False, dropout_p=0.8, relu=False, learning_r=0.001)
     """
     for relu in [True, False]:
         for dropout_p in [0,0.3,0.5]:
