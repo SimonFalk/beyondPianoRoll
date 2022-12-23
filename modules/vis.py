@@ -78,3 +78,24 @@ def passage_extractor(audio, onset_list, breakpoints, sr=44100):
             "abs_start" : start,
             "abs_end" : end
         } for start, end in zip(breakpoints[:-1], breakpoints[1:])]
+
+
+def piano_roll_mat(notes, vis_onsets, fps=100, slur_tol=0.025):
+    n_steps = np.max(notes["offset"]*fps).astype(int)
+    # pr_matrix is 1 when the note is on, otherwise 0
+    pr_matrix = np.zeros((n_steps, 128)).astype(bool)
+    # class_matrix is 2 when the note is articulated, 1 when the note is slurred, else 0
+    class_matrix = np.zeros((n_steps, 128)).astype(int)
+    # wind_matrix is 1 inside a window slur_tol before and slur_tol after an onset occurs
+    wind_matrix = np.zeros((n_steps, 1)).astype(bool)
+
+    for note in notes.iloc:
+        pr_matrix[np.arange(int(note["onset"]*fps), int(note["offset"]*fps)), note["pitch"]] = True
+        class_matrix[np.arange(int(note["onset"]*fps), int(note["offset"]*fps)), note["pitch"]] = 1
+        wind_matrix[np.arange(int((note["onset"]-slur_tol)*fps), int((note["onset"]+slur_tol)*fps)), 0] = True
+        for ons in vis_onsets:
+            if ons<note["onset"]+slur_tol and ons>note["onset"]-slur_tol:
+                class_matrix[np.arange(int(note["onset"]*fps), int(note["offset"]*fps)), note["pitch"]] = 2
+        
+    return pr_matrix, class_matrix, wind_matrix
+
