@@ -88,14 +88,17 @@ def piano_roll_mat(notes, vis_onsets, fps=100, slur_tol=0.025):
     class_matrix = np.zeros((n_steps, 128)).astype(int)
     # wind_matrix is 1 inside a window slur_tol before and slur_tol after an onset occurs
     wind_matrix = np.zeros((n_steps, 1)).astype(bool)
+    # indices of articulated notes
+    art_idx = []
 
-    for note in notes.iloc:
+    for i, note in enumerate(notes.iloc):
         pr_matrix[np.arange(int(note["onset"]*fps), int(note["offset"]*fps)), note["pitch"]] = True
         class_matrix[np.arange(int(note["onset"]*fps), int(note["offset"]*fps)), note["pitch"]] = 1
         wind_matrix[np.arange(int((note["onset"]-slur_tol)*fps), int((note["onset"]+slur_tol)*fps)), 0] = True
         for ons in vis_onsets:
             if ons<note["onset"]+slur_tol and ons>note["onset"]-slur_tol:
                 class_matrix[np.arange(int(note["onset"]*fps), int(note["offset"]*fps)), note["pitch"]] = 2
+                art_idx = art_idx + [i]
         
-    return pr_matrix, class_matrix, wind_matrix
+    return pr_matrix, class_matrix, wind_matrix, np.array(art_idx)
 
