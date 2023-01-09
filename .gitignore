@@ -23,7 +23,7 @@ results/tensorboard
 hfc-files/*.xlsx
 
 test.abc
-
+abctest*
 
 #VS CODE
 .vscode/
