@@ -46,7 +46,7 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5, l2_lambda
             filters = 10,
             kernel_size = (7,3),
             strides = 1,
-            trainable = not finetune,
+            trainable = False,
             kernel_regularizer=l2(l2_lambda), 
             bias_regularizer=l2(l2_lambda),
         ),
@@ -83,6 +83,7 @@ def get_model(finetune=False, extend=False, relu=False, dropout_p=0.5, l2_lambda
         model.add(tf.keras.layers.Dropout(dropout_p))
     model.add(
         tf.keras.layers.Dense(1, 
+            trainable = True,
             activation = Activation(custom_activation, name='SpecialActivation'),
             kernel_regularizer=l2(l2_lambda),
             bias_regularizer=l2(l2_lambda)
