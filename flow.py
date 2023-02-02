@@ -176,7 +176,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
     
     # Custom splits
     n_splits = 1
-    folds = [[np.arange(len(audios)), []]]
+    folds = [[[ 0,  1,  2,  3,  4,  7,  8, 11, 12, 14, 15, 18, 19, 20, 21, 23, 24,
+       25, 27, 28, 31, 32, 34, 35, 36, 37, 38, 39, 41, 42, 43, 45, 46, 48], [29,22,30,47,44,33]]]
     #sa_choice = np.random.choice(sa_recs, size=len(sa_recs), replace=False)
     #ir_choice = np.random.choice(ir_recs, size=len(ir_recs), replace=False)
     #bp_sa = int(len(sa_recs)*0.9)
@@ -211,17 +212,17 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
     optimizer = tf.keras.optimizers.Adam()
     metrics = [wbce]
 
-    datasets = "full"
+    datasets = "refined"
     continue_run = False
     training_mode = "all" # REMEMBER TO CHANGE
     check_at_epoch = 20 # REMEMBER TO CHANGE
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
-    save_path = "results/cnn-training-230111/" # TODO - automatically
-    n_epochs = 100 # REMEMBER TO CHANGE
+    save_path = "results/cnn-training-230202a/" # TODO - automatically
+    n_epochs = 300 # REMEMBER TO CHANGE
     #learning_r = 0.001 as function parameter
-    bs = 512
+    bs = 256
     steps_per_epoch = 0 # is set later
     val_steps_per_epoch = 100 # needed?
     nogen = False
@@ -330,8 +331,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
             steps_per_epoch = steps_per_epoch,
             epochs          = n_epochs,
             # Validation data
-            validation_data = None, # validation_data, # REMEMBER TO CHANGE
-            #validation_steps  = val_steps_per_epoch,
+            validation_data = validation_data,
+            validation_steps  = val_steps_per_epoch,
             class_weight = cw_dict,
             callbacks=cp_callback,
             verbose=1
@@ -351,7 +352,7 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
 if __name__=="__main__":
     
     main(finetune=False, extend=False, dropout_p=0.8, relu=False, learning_r=0.001)
-    main(finetune=True, extend=False, dropout_p=0.8, relu=False, learning_r=0.001)
+    #main(finetune=True, extend=False, dropout_p=0.8, relu=False, learning_r=0.001)
     """
     for relu in [True, False]:
         for dropout_p in [0,0.3,0.5]:
