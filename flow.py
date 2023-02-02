@@ -76,7 +76,8 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
         mode=None,
         standard=False,
         mean=None,
-        std=None
+        std=None, 
+        single_channel=False
     ):
         
         #for _ in range(steps_per_epoch * epochs):
@@ -132,7 +133,10 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
 
             # Segmentation
             x = [frames[focus:focus+2*CONTEXT+1,:,:] for focus in focus_idx]
-            x = np.transpose(np.stack(x, 0), [0,2,1,3])
+            if single_channel:
+                x = np.transpose(np.stack(x,0)[:,:,:,0], [0,2,1])
+            else:   
+                x = np.transpose(np.stack(x, 0), [0,2,1,3])
             #print("Segmented x has shape ", x.shape)
             if x.shape[0] != batch_size:
                 print("Delivering less than batch-size")
@@ -215,7 +219,7 @@ def main(finetune, extend, dropout_p, relu, learning_r=0.001):
     datasets = "refined"
     continue_run = False
     training_mode = "all" # REMEMBER TO CHANGE
-    check_at_epoch = 20 # REMEMBER TO CHANGE
+    check_at_epoch = 5 # REMEMBER TO CHANGE
 
     save = True # REMEMBER TO CHANGE
     # REMEMBER TO CHANGE
