@@ -12,11 +12,13 @@ def get_idx_to_fold(folds):
     
     return itf
 
-def get_segmented_data(path, do_cnn_normalize=True, CONTEXT=7):
+def get_segmented_data(path, standard=False, mean=None, std=None, do_cnn_normalize=False, CONTEXT=7):
     preprocessor = cnn_preprocessor()
     frames = preprocessor(path)
     if do_cnn_normalize:
         frames = cnn_normalize(frames)
+    if standard:
+        frames = (frames-mean)/std
     x = [
         frames[i-CONTEXT:i+CONTEXT+1,:,:] 
         for i in range(CONTEXT, frames.shape[0]-CONTEXT)
