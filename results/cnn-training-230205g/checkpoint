@@ -1,0 +1,2 @@
+model_checkpoint_path: "fold_0_tot-seq-32eps-lr0.0050-standard_cp_0032.ckpt"
+all_model_checkpoint_paths: "fold_0_tot-seq-32eps-lr0.0050-standard_cp_0032.ckpt"
