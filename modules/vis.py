@@ -3,7 +3,7 @@ import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
-def onset_visualizer(passage=None, audio=None, onset_list=None, lims=None, onset_styles=None, ax=None, **plt_kwargs):
+def onset_visualizer(passage=None, audio=None, onset_list=None, lims=None, onset_styles=None, ax=None, size=30, **plt_kwargs):
     """
     Either use a passage as created from passage_extractor()
     or manually select the audio, onsetlist and 
@@ -31,10 +31,10 @@ def onset_visualizer(passage=None, audio=None, onset_list=None, lims=None, onset
     while o<len(onset_list):
         if o<len(ONSET_MARKERS) and o<len(ONSET_COLORS):
             ax.scatter(onset_list[o], np.zeros_like(onset_list[o])-o*HEIGHT_SEP, 
-                    marker=ONSET_MARKERS[o], c=ONSET_COLORS[o], s=30.0, zorder=len(onset_list)+10-o
+                    marker=ONSET_MARKERS[o], c=ONSET_COLORS[o], s=size, zorder=len(onset_list)+10-o
             )
         else:
-            ax.scatter(onset_list[o], np.zeros_like(onset_list[o])-o*HEIGHT_SEP, s=30.0),
+            ax.scatter(onset_list[o], np.zeros_like(onset_list[o])-o*HEIGHT_SEP, s=size),
         o+=1
     return ax
 
