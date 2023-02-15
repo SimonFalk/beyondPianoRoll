@@ -24,9 +24,14 @@ results/madmom*
 results/processor*
 results/tensorboard
 
+tests/
+tutorials/
+graphs/
+
 hfc-files/*.xlsx
 
 test.abc
+test.xml
 abctest*
 
 #VS CODE
