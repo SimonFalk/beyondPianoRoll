@@ -15,6 +15,8 @@ Copyright Simon Falk 2023
 
 ## CNN model for hard onset detection
 
+[To be updated]
+
 For a demo how to apply the CNN HOD model to a test recording and detect onsets, see the
 [demo.ipynb](demo.ipynb) notebook.
 
