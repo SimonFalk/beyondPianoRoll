@@ -1,4 +1,4 @@
-# 
+# beyondPianoRoll
 This is the code repository for the project about *expressive AMT* which was published in the paper "Automatic Legato Transcription based on Onset Detection".
 
 Copyright Simon Falk 2023
