@@ -1,11 +1,7 @@
-# beyondPianoRoll
-Master degree project in computer science, 2022
+# 
+This is the code repository for the project about *expressive AMT* which was published in the paper "Automatic Legato Transcription based on Onset Detection".
 
-Simon Falk,
-
-DoReMIR,
-
-KTH
+Copyright Simon Falk 2023
 
 ## CNN model for hard onset detection
 
