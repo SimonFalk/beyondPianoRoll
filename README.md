@@ -5,7 +5,7 @@ Falk, Simon; Sturm, Bob L.T. and Ahlbäck, Sven, "Automatic Legato Transcription
 
 ## Links
 
-- The paper published at SMC 2023 can be found [here](automatic_legato_transcription_smc_paper.pdf).
+- The revised paper published at SMC 2023 can be found [here](automatic_legato_transcription-7.pdf).
 
 - The *slurtest* dataset that we created can be found on [this page](https://www.kth.se/profile/bobs/page/research-data)
 
