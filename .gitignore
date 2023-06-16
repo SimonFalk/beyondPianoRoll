@@ -23,6 +23,17 @@ results/hfc-eval*
 results/madmom*
 results/processor*
 results/tensorboard
+datasets/slurtest_add
+datasets/sc_onsets
+datasets/meta
+datasets/madmom_models-master
+datasets/initslurtest_vn_old
+datasets/initslurtest_vn
+datasets/extra
+graphs
+hfc-files
+tests
+tutorials
 
 tests/
 tutorials/
